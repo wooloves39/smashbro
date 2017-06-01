@@ -7,7 +7,9 @@
 #include<string>
 #include<ctime>
 #include<atlimage.h>
+#include<cmath>
 #include"map.h"
+#define RAD 3.141592/180
 using namespace std;
 int state = 0;
 enum state { title, cho_map, cho_cha, play, ending, ranking };
@@ -23,7 +25,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 map m;
 Camera cam;
 int map_stage;
-
+CImage UI[3];
+CImage demage_UI;
+CImage number;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
 	HWND hWnd;
@@ -90,6 +94,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		mapEX[3].Load(TEXT("map\\map4\\map4.bmp"));
 		mapEX[4].Load(TEXT("map\\map5\\map5.bmp"));
 		mapEX[5].Load(TEXT("sub_image\\random_map.bmp"));
+		UI[0].Load(TEXT("sub_image\\mario_UI.bmp"));
+		UI[1].Load(TEXT("sub_image\\luizy_UI.bmp"));
+		UI[2].Load(TEXT("sub_image\\wario_UI.bmp"));
+		demage_UI.Load(TEXT("sub_image\\demage_UI.bmp"));
+		number.Load(TEXT("sub_image\\number.bmp"));
 		Lankstate;
 		cam.setPos();
 		break;
@@ -303,6 +312,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			break; }
 		case play:
 			m.draw(memDC, rectView, cam, map_stage);
+			for (int i = 0; i < 3; ++i) {
+				UI[i].TransparentBlt(memDC,  280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(0, 0, 0));
+				demage_UI.TransparentBlt(memDC, 340 + i * 350, 620, 150, 150, 0, 0, 170, 170, RGB(255, 255, 255));
+				number.Draw(memDC, 390 + i * 350, 690, 15, 15, i*140, 0, 140, 250);
+			}
+			
 			break;
 		case ending:
 			Ending.Draw(memDC, -10, 0, rectView.right, rectView.bottom);
