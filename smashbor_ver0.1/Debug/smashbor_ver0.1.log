@@ -1,0 +1,38 @@
+﻿  stdafx.cpp
+  Player.cpp
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(34): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(45): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(46): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(70): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(71): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(8): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(9): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(11): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(12): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(14): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(15): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(49): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(50): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(54): warning C4244: '+=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(55): warning C4244: '+=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(59): warning C4244: '-=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(60): warning C4244: '-=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(64): warning C4244: '+=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(65): warning C4244: '+=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(78): warning C4244: '-=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.cpp(80): warning C4244: '+=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  map.cpp
+  main.cpp
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(34): warning C4244: '=': 'float'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(45): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(46): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(70): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\player.h(71): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\main.cpp(137): warning C4060: switch문에 'case' 또는 'default' 레이블이 없습니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\main.cpp(248): warning C4390: ';': 제어된 빈 문이 있습니다. 이 문이 필요합니까?
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\main.cpp(99): warning C4101: 'score' :참조되지 않은 지역 변수입니다.
+d:\2017\윈플\smash_bro\smashbro\smashbor_ver0.1\main.cpp(97): warning C4101: 'oldBrush' :참조되지 않은 지역 변수입니다.
+  Camera.cpp
+  코드를 생성하고 있습니다...
+  smashbor_ver0.1.vcxproj -> D:\2017\윈플\smash_bro\smashbro\Debug\smashbor_ver0.1.exe
+  smashbor_ver0.1.vcxproj -> D:\2017\윈플\smash_bro\smashbro\Debug\smashbor_ver0.1.pdb (Partial PDB)
