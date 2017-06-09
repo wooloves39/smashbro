@@ -5,6 +5,7 @@
 #endif
 #pragma comment(lib, "Msimg32.lib")
 #define RAD 3.141592/180 
+
 #define CLIENT_WIDTH 1280		// 클라이언트 너비
 #define CLIENT_HEIGHT 720		// 클라이언트 높이
 //-------------DEFINE CHARDIR-----------//
@@ -16,23 +17,37 @@
 #define DIR_DOWN				0x20
 
 //-------------DEFINE CHAR STATUS-----------//
-#define MOVE_RIGHT				0
-#define MOVE_LEFT				1
-#define JUMP_RIGHT				2		
-#define JUMP_LEFT				3
-#define ATTACK_HIGH				4
-#define NORMAL					5
-#define DEFEND					6
-#define FLYING					7
-#define FLAT					8 //앉기
-#define DYE						9 //쓰러지기
-#define VICTORY					10
-#define LOSE					11
+#define BASIC_RIGHT				0		
+#define BASIC_LEFT				1
+#define MOVE_RIGHT				2
+#define MOVE_LEFT				3
+#define JUMP_RIGHT				4		
+#define JUMP_LEFT				5
+#define HATTACK_RIGHT			6		
+#define HATTACK_LEFT			7
+#define ATTACK1_RIGHT			8		
+#define ATTACK1_LEFT			9
+#define ATTACK2_RIGHT			10		
+#define ATTACK2_LEFT			11
+#define KICK_RIGHT				12		
+#define KICK_LEFT				13
+#define DEFENSE_RIGHT			14	
+#define DEFENSE_LEFT			15
+#define SIT_RIGHT				16		
+#define SIT_LEFT				17
+#define FLY_RIGHT				18	//날아가기	
+#define FLY_LEFT				19
+#define UP_LEFT					20
+#define UP_RIGHT				21
+#define DYE_LEFT				22
+#define DYE_RIGHT				23
+#define LOSE					24		
+#define WIN						25
 
 //------------CHAR DEFINE---------------//
 #define MARIO					0;
-#define RUISY					1;
-#define WARIO					2;
+#define WARIO					1;
+#define RUISY					2;
 
 
 //------------DEFINE HEADER-------------//

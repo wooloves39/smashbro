@@ -26,7 +26,6 @@ CCamera cam;
 int map_stage;
 CImage UI[3];
 CImage demage_UI;
-CImage number;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
 	HWND hWnd;
@@ -70,22 +69,231 @@ CImage tempImage;
 
 void BuildPlayer(void)
 {
-	//일단은 마리오만 만들어놓음. 1 
-	m_Player = new CPlayer*[1];
+	//+WARIO
+	m_Player = new CPlayer*[3];
 	//1. Mario
-	CPlayer *Mario = new CPlayer(4);
+	CPlayer *Mario = new CPlayer(26);
+	//BASIC 
+	Mario->SetTexture(BASIC_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTBASIC.png"), 4);
+	Mario->SetTexture(BASIC_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTBASIC.png"), 4);
+	//RUN
 	Mario->SetTexture(MOVE_RIGHT,
-		_T("character\\MARIO\\MARIO_RIGHTMOVE.png"));
+		_T("character\\MARIO\\MARIO_RIGHTMOVE.png"),8);
 	Mario->SetTexture(MOVE_LEFT,
-		_T("character\\MARIO\\MARIO_LEFTMOVE.png"));
+		_T("character\\MARIO\\MARIO_LEFTMOVE.png"),8);
+	//JUMP
 	Mario->SetTexture(JUMP_RIGHT,
-		_T("character\\MARIO\\MARIO_RIGHTJUMP.png"));
+		_T("character\\MARIO\\MARIO_RIGHTJUMP.png"),5);
 	Mario->SetTexture(JUMP_LEFT,
-		_T("character\\MARIO\\MARIO_LEFTJUMP.png"));
+		_T("character\\MARIO\\MARIO_LEFTJUMP.png"),5);
+	//ATTACK - STRONG
+	Mario->SetTexture(HATTACK_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTSTRONGATTACK.png"), 6);
+	Mario->SetTexture(HATTACK_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTSTRONGATTACK.png"), 6);
+	//ATTACK 1 
+	//1-1
+	Mario->SetTexture(ATTACK1_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTATTACK1-1.png"), 4);
+	Mario->SetTexture(ATTACK1_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTATTACK1-1.png"), 4);
+	//1-2
+	Mario->SetTexture(ATTACK2_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTATTACK1.png"), 4);
+	Mario->SetTexture(ATTACK2_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTATTACK1.png"), 4);
+	//1-3 점프중 공격키누르면 나오는것 
+	Mario->SetTexture(KICK_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTKICK.png"), 3);
+	Mario->SetTexture(KICK_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTKICK.png"), 3);
+	//DEFENSE
+	Mario->SetTexture(DEFENSE_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHT_DEF.png"), 1);
+	Mario->SetTexture(DEFENSE_LEFT,
+		_T("character\\MARIO\\MARIO_LEFT_DEF.png"), 1);
+	//SIT
+	Mario->SetTexture(SIT_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTSIT.png"), 3);
+	Mario->SetTexture(SIT_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTSIT.png"), 3);
+	//FLY (날아가는 모션)
+	Mario->SetTexture(FLY_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHT_FLY.png"), 4);
+	Mario->SetTexture(FLY_LEFT,
+		_T("character\\MARIO\\MARIO_LEFT_FLY.png"), 4);
+	//UP(일어나는 모션)
+	Mario->SetTexture(UP_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTUP.png"), 2);
+	Mario->SetTexture(UP_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTUP.png"), 2);
+	//DYE
+	Mario->SetTexture(DYE_LEFT,
+		_T("character\\MARIO\\MARIO_LEFTDYE.png"), 3);
+	Mario->SetTexture(DYE_RIGHT,
+		_T("character\\MARIO\\MARIO_RIGHTDYE.png"), 3);
+	//LOSE
+	Mario->SetTexture(LOSE,
+		_T("character\\MARIO\\MARIO_LOSE.png"), 2);
+	//WIN
+	Mario->SetTexture(WIN,
+		_T("character\\MARIO\\MARIO_VICTORY.png"), 4);
 
 	m_Player[0] = Mario;
-	m_Player[0]->SetPosition(500, 300);
-	m_Player[0]->SetStatus(MOVE_RIGHT);	//현재상태 셋팅 
+	m_Player[0]->SetPosition(250, 300);
+	m_Player[0]->SetStatus(BASIC_RIGHT);	//현재상태 셋팅 
+
+	//2. Wario
+	CPlayer *Wario = new CPlayer(26);
+	//BASIC
+	Wario->SetTexture(BASIC_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTBASIC.png"), 4);
+	Wario->SetTexture(BASIC_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTBASIC.png"), 4);
+	//RUN
+	Wario->SetTexture(MOVE_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTMOVE.png"), 8);
+	Wario->SetTexture(MOVE_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTMOVE.png"), 8);
+	//JUMP
+	Wario->SetTexture(JUMP_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTJUMP.png"), 5);
+	Wario->SetTexture(JUMP_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTJUMP.png"), 5);
+	//ATTACK - STRONG
+	Wario->SetTexture(HATTACK_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTSTRONGATTACK.png"), 6);
+	Wario->SetTexture(HATTACK_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTSTRONGATTACK.png"), 6);
+	//ATTACK 1 
+	//1-1
+	Wario->SetTexture(ATTACK1_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTATTACK1-1.png"), 4);
+	Wario->SetTexture(ATTACK1_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTATTACK1-1.png"), 4);
+	//1-2
+	Wario->SetTexture(ATTACK2_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTATTACK1.png"), 4);
+	Wario->SetTexture(ATTACK2_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTATTACK1.png"), 4);
+	//1-3 점프중 공격키누르면 나오는것 
+	Wario->SetTexture(KICK_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTKICK.png"), 3);
+	Wario->SetTexture(KICK_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTKICK.png"), 3);
+	//DEFENSE
+	Wario->SetTexture(DEFENSE_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHT_DEF.png"), 1);
+	Wario->SetTexture(DEFENSE_LEFT,
+		_T("character\\WARIO\\WARIO_LEFT_DEF.png"), 1);
+	//SIT
+	Wario->SetTexture(SIT_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTSIT.png"), 3);
+	Wario->SetTexture(SIT_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTSIT.png"), 3);
+	//FLY (날아가는 모션)
+	Wario->SetTexture(FLY_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHT_FLY.png"), 4);
+	Wario->SetTexture(FLY_LEFT,
+		_T("character\\WARIO\\WARIO_LEFT_FLY.png"), 4);
+	//UP(일어나는 모션)
+	Wario->SetTexture(UP_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTUP.png"), 2);
+	Wario->SetTexture(UP_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTUP.png"), 2);
+	//DYE
+	Wario->SetTexture(DYE_LEFT,
+		_T("character\\WARIO\\WARIO_LEFTDYE.png"), 3);
+	Wario->SetTexture(DYE_RIGHT,
+		_T("character\\WARIO\\WARIO_RIGHTDYE.png"), 3);
+	//LOSE
+	Wario->SetTexture(LOSE,
+		_T("character\\WARIO\\WARIO_LOSE.png"), 2);
+	//WIN
+	Wario->SetTexture(WIN,
+		_T("character\\WARIO\\WARIO_VICTORY.png"), 4);
+
+
+	m_Player[1] = Wario;
+	m_Player[1]->SetPosition(300, 300);
+	m_Player[1]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
+
+	//3. LUIZY
+	CPlayer *Luizy = new CPlayer(26);
+	//BASIC
+	Luizy->SetTexture(BASIC_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTBASIC.png"), 4);
+	Luizy->SetTexture(BASIC_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTBASIC.png"), 4);
+	//RUN
+	Luizy->SetTexture(MOVE_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTMOVE.png"), 8);
+	Luizy->SetTexture(MOVE_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTMOVE.png"), 8);
+	//JUMP
+	Luizy->SetTexture(JUMP_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTJUMP.png"), 5);
+	Luizy->SetTexture(JUMP_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTJUMP.png"), 5);
+	//ATTACK - STRONG
+	Luizy->SetTexture(HATTACK_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTSTRONGATTACK.png"), 6);
+	Luizy->SetTexture(HATTACK_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTSTRONGATTACK.png"), 6);
+	//ATTACK 1 
+	//1-1
+	Luizy->SetTexture(ATTACK1_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTATTACK1-1.png"), 4);
+	Luizy->SetTexture(ATTACK1_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTATTACK1-1.png"), 4);
+	//1-2
+	Luizy->SetTexture(ATTACK2_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTATTACK1.png"), 4);
+	Luizy->SetTexture(ATTACK2_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTATTACK1.png"), 4);
+	//1-3 점프중 공격키누르면 나오는것 
+	Luizy->SetTexture(KICK_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTKICK.png"), 3);
+	Luizy->SetTexture(KICK_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTKICK.png"), 3);
+	//DEFENSE
+	Luizy->SetTexture(DEFENSE_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHT_DEF.png"), 1);
+	Luizy->SetTexture(DEFENSE_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFT_DEF.png"), 1);
+	//SIT
+	Luizy->SetTexture(SIT_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTSIT.png"), 3);
+	Luizy->SetTexture(SIT_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTSIT.png"), 3);
+	//FLY (날아가는 모션)
+	Luizy->SetTexture(FLY_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHT_FLY.png"), 4);
+	Luizy->SetTexture(FLY_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFT_FLY.png"), 4);
+	//UP(일어나는 모션)
+	Luizy->SetTexture(UP_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTUP.png"), 2);
+	Luizy->SetTexture(UP_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTUP.png"), 2);
+	//DYE
+	Luizy->SetTexture(DYE_LEFT,
+		_T("character\\LUIZY\\LUIZY_LEFTDYE.png"), 3);
+	Luizy->SetTexture(DYE_RIGHT,
+		_T("character\\LUIZY\\LUIZY_RIGHTDYE.png"), 3);
+	//LOSE
+	Luizy->SetTexture(LOSE,
+		_T("character\\LUIZY\\LUIZY_LOSE.png"), 2);
+	//WIN
+	Luizy->SetTexture(WIN,
+		_T("character\\LUIZY\\LUIZY_VICTORY.png"), 4);
+
+
+	m_Player[2] = Luizy;
+	m_Player[2]->SetPosition(350, 300);
+	m_Player[2]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
@@ -120,15 +328,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		UI[1].Load(TEXT("sub_image\\luizy_UI.bmp"));
 		UI[2].Load(TEXT("sub_image\\wario_UI.bmp"));
 		demage_UI.Load(TEXT("sub_image\\demage_UI.bmp"));
-		number.Load(TEXT("sub_image\\number.bmp"));
+
+		
 		Lankstate;
 
 		//--------PLAYER SET--------//
-		nPlayer = 1; // 현재 플레이하는 플레이어는 1명. 
+		nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
 		nowPlayer = MARIO;	//현재 플레이어는 마리오 
 		BuildPlayer();
 		cam.setPos();
-		cout << cam.getPos().x << endl;
+
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
@@ -171,7 +380,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				else
 					KillTimer(hWnd, 1);
 				break;
-			case 'A':
+			case 'A': 
 			{
 				state = cho_cha;
 				map_stage = ((sel.x - 140) / 200) + 1;
@@ -213,42 +422,80 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			switch (wParam)
 			{
 				SetTimer(hWnd, 2, 16, NULL);//점프타이머
+			//------PLAYER CHANGE------//
+			case VK_F1:
+				nowPlayer = MARIO;
+				break;
+
+			case VK_F2:
+				nowPlayer = WARIO;
+				break;
+
+			case VK_F3:
+				nowPlayer = RUISY;
+				break;
+			//--------------------------//
+
 			case VK_LEFT:
 				dwDirection |= DIR_LEFT;
 				m_Player[nowPlayer]->SetStatus(MOVE_LEFT);
 
+				//cam.add(-10);
 				break;
 
 			case VK_RIGHT:
 				dwDirection |= DIR_RIGHT;
 				m_Player[nowPlayer]->SetStatus(MOVE_RIGHT);
-
+				//cam.add(10);
 				break;
 
 			case VK_SPACE:
 				dwDirection |= DIR_UP;
-				if (m_Player[nowPlayer]->GetStatus() == MOVE_RIGHT)
+				if(m_Player[nowPlayer]->GetStatus() == MOVE_RIGHT)
 					m_Player[nowPlayer]->SetStatus(JUMP_RIGHT);
 				if (m_Player[nowPlayer]->GetStatus() == MOVE_LEFT)
 					m_Player[nowPlayer]->SetStatus(JUMP_LEFT);
+				break;
+
+			case 'G':
+				if (m_Player[nowPlayer]->GetStatus() == BASIC_RIGHT)
+				{
+					m_Player[nowPlayer]->SetStatus(HATTACK_RIGHT);
+				}
+				if (m_Player[nowPlayer]->GetStatus() == BASIC_LEFT)
+				{
+					m_Player[nowPlayer]->SetStatus(HATTACK_LEFT);
+				}
+				break;
+			case 'F':
+				if (m_Player[nowPlayer]->GetStatus() == BASIC_RIGHT)
+				{
+					m_Player[nowPlayer]->SetStatus(ATTACK1_RIGHT);
+				}
+				else if (m_Player[nowPlayer]->GetStatus() == BASIC_LEFT)
+				{
+					m_Player[nowPlayer]->SetStatus(ATTACK1_LEFT);
+				}
+
+				else if (m_Player[nowPlayer]->m_State == ATTACK1_RIGHT)
+				{
+					m_Player[nowPlayer]->n_AttackCount = 2;
+				}
+				else if (m_Player[nowPlayer]->m_State == ATTACK1_LEFT)
+				{
+					m_Player[nowPlayer]->n_AttackCount = 2;
+				}
 				break;
 
 			case 'A':
 				state = ending;
 
 				break;
-
-			case 'W':
-				m_Player[nowPlayer]->sma = true;
-				break;
 			}
+
 			if (dwDirection)
 			{
 				m_Player[nowPlayer]->Move(dwDirection, 2.0f, true);
-				if (m_Player[nowPlayer]->GetPosition().x >= 250 && m_Player[nowPlayer]->GetPosition().x <= 750);
-				cam.add(m_Player[nowPlayer]->getVelocity().x);
-				cout << m_Player[nowPlayer]->GetPosition().x << endl;
-				cout << cam.getPos().x << endl;
 			}
 			break;
 
@@ -296,14 +543,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case VK_ESCAPE:
 			exit(1);
 		}
-
 		InvalidateRect(hWnd, NULL, FALSE);
 		break;
 
+	case WM_KEYUP:
+	{
+		switch (state)
+		{
+		case play:
+				if (m_Player[nowPlayer]->GetStatus() == MOVE_RIGHT)
+				{
+					m_Player[nowPlayer]->SetStatus(BASIC_RIGHT);
+					break;
+				}
+				if (m_Player[nowPlayer]->GetStatus() == MOVE_LEFT)
+				{
+					m_Player[nowPlayer]->SetStatus(BASIC_LEFT);
+					break;
+				}
+		}
+	}
+	InvalidateRect(hWnd, NULL, FALSE);
+	break;
+
 	case WM_TIMER:
 	{
-		if (m_Player[nowPlayer]->sma == true)
-			m_Player[nowPlayer]->smashing();
+		if (state == play) {
+			for (int i = 0; i < nPlayer; ++i) {
+			m.collision(*m_Player[i]);
+
+
+				if (m_Player[i]->sma == true)
+					m_Player[i]->smashing();
+				else {
+					m_Player[i]->gravity();
+				}
+				m_Player[i]->printdamege();
+			}
+		}
 		switch (wParam)
 		{
 		case 1:
@@ -314,18 +591,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			// 스프라이트는 1/60초 마다 갱신하여 약 1.1초 주기로 반복된다.
 			for (int i = 0; i < nPlayer; ++i)
 			{
-				m_Player[i]->g_nSpriteCurrent += 1;
-				(m_Player[i]->g_nSpriteCurrent) %= m_Player[i]->g_nSpriteCount;
+				m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent += 1;
+
+				//공격하기는 스프라이트 1번만 돌아가도록하기
+				if (m_Player[i]->m_State == HATTACK_RIGHT || m_Player[i]->m_State == HATTACK_LEFT
+					|| m_Player[i]->m_State == ATTACK1_RIGHT || m_Player[i]->m_State == ATTACK1_LEFT
+					|| m_Player[i]->m_State == ATTACK2_RIGHT || m_Player[i]->m_State == ATTACK2_LEFT)
+				{
+					if (m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent >=
+						m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCount)
+					{
+						m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent = 0;
+						if (m_Player[nowPlayer]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_RIGHT)
+						{
+							m_Player[i]->SetStatus(ATTACK2_RIGHT);
+							m_Player[nowPlayer]->n_AttackCount = 1;
+						}
+						else if (m_Player[nowPlayer]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_LEFT)
+						{
+							m_Player[i]->SetStatus(ATTACK2_LEFT);
+							m_Player[nowPlayer]->n_AttackCount = 1;
+						}
+
+						else m_Player[i]->SetStatus(BASIC_RIGHT);
+					}
+				}
+
+				(m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent) 
+					%= m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCount;
 			}
-			if (m_Player[nowPlayer]->GetStatus() == JUMP_LEFT || m_Player[nowPlayer]->GetStatus() == JUMP_RIGHT)
-			{
-				m_Player[nowPlayer]->JumpTimer();
-			}
+				if (m_Player[nowPlayer]->GetStatus() == JUMP_LEFT || m_Player[nowPlayer]->GetStatus() == JUMP_RIGHT)
+				{
+					m_Player[nowPlayer]->JumpTimer();
+				}
 			break;
 
 		}
 		InvalidateRect(hWnd, NULL, FALSE);
 	}
+
 	case WM_PAINT:
 	{
 		hdc = BeginPaint(hWnd, &ps);
@@ -342,11 +646,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			RECT rc;
 			RECT rc2;
 			RECT selectRC;
+
 			selectRC.left = -80 + sel.x;
 			selectRC.top = -45 + sel.y;
 			selectRC.right = 80 + sel.x;
 			selectRC.bottom = 45 + sel.y;
 			Background.Draw(memDC, 0, 0);
+
 			rc2.left = -400;
 			rc2.top = -225;
 			rc2.right = 400;
@@ -355,6 +661,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			rc.top = -45;
 			rc.right = 80;
 			rc.bottom = 45;
+
 			Rectangle(memDC, rectView.right / 2 + rc2.left, rectView.bottom / 2 + rc2.top - 100, rectView.right / 2 + rc2.right, rectView.bottom / 2 + rc2.bottom - 100);
 			if (map_stage == 6) {
 				mapEX[stage_view].Draw(memDC, rectView.right / 2 + rc2.left, rectView.bottom / 2 + rc2.top - 100, 800, 450, 0, 0, 800, 450);
@@ -379,22 +686,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			selectRC.right = 175 + sel.x;
 			selectRC.bottom = 225 + sel.y;
 			FrameRect(memDC, &selectRC, hBrush);
-			break;
+			break; 
 		}
 
 		case play:
-			SetTimer(hWnd, 0, 64, NULL);
-
+			SetTimer(hWnd, 0, 100, NULL);
+			
 			m.draw(memDC, rectView, cam, map_stage);
 			//현재 플레이하고있는 플레이어를 모두 draw 
-			for (int i = 0; i < nPlayer; ++i)
-				m_Player[i]->DrawSprite(memDC, m_Player[i]->g_nSpriteCurrent, cam);
+			for(int i = 0 ; i < nPlayer ; ++i)
+				m_Player[i]->DrawSprite(memDC, 
+					m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent);
+			cout << m_Player[1]->m_ppTexture[m_Player[1]->m_State].nSpriteCurrent << endl;
+			
 			for (int i = 0; i < 3; ++i) {
 				UI[i].TransparentBlt(memDC, 280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(0, 0, 0));
 				demage_UI.TransparentBlt(memDC, 340 + i * 350, 620, 150, 150, 0, 0, 170, 170, RGB(255, 255, 255));
-				number.Draw(memDC, 390 + i * 350, 690, 15, 15, i * 140, 0, 140, 250);
-			}
 
+				TextOut(memDC, 400 + i * 350, 690, TEXT(m_Player[i]->getDamege()), strlen(m_Player[i]->getDamege()));
+			}
 			break;
 		case ending:
 			Ending.Draw(memDC, -10, 0, rectView.right, rectView.bottom);

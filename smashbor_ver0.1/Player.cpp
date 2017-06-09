@@ -3,8 +3,8 @@
 CPlayer::CPlayer(int nStatus)
 {
 	nTexture = nStatus; // 현재 상태의 개수 
-	m_ppTexture = new CImage[nTexture];
-
+	m_ppTexture = new Image[nTexture];
+	
 	m_Velocity.x = 0.0f;
 	m_Velocity.y = 0.0f;
 
@@ -14,15 +14,11 @@ CPlayer::CPlayer(int nStatus)
 	m_dirUp.x = 0.0f;
 	m_dirUp.y = 1.0f;
 
-	g_nSpriteX = 8;
-	g_nSpriteY = 1;
-	g_nSpriteCount = 8;
-	g_nSpriteCurrent = 0;
-
+	n_AttackCount = 1;
 	jumpUp = 1;
 
-	m_BeforeState = MOVE_RIGHT;
-	m_State = MOVE_RIGHT;
+	m_BeforeState = BASIC_RIGHT;
+	m_State = BASIC_RIGHT;
 }
 
 CPlayer::~CPlayer()
@@ -30,16 +26,20 @@ CPlayer::~CPlayer()
 }
 
 void CPlayer::SetStatus(int state)
-{
-	m_BeforeState = m_State;
-	m_State = state;
+{ 
+	m_BeforeState = m_State; 
+	m_State = state; 
 	if (m_BeforeState != m_State) StateChange();
 }
 
-void CPlayer::SetTexture(int nIndex, LPCTSTR pCImage)
+void CPlayer::SetTexture(int nIndex, LPCTSTR pCImage, int nSpriteCount)
 {
-	m_ppTexture[nIndex].Load(pCImage);
-}
+	m_ppTexture[nIndex].Texture.Load(pCImage);
+	m_ppTexture[nIndex].g_nSpriteX = nSpriteCount;
+	m_ppTexture[nIndex].nSpriteCount = nSpriteCount;
+	m_ppTexture[nIndex].g_nSpriteY = 1;
+	m_ppTexture[nIndex].nSpriteCurrent = 0;
+}	
 
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
@@ -74,8 +74,8 @@ void  CPlayer::JumpTimer(void)
 	{
 		jumpUp = 0;
 	}
-	if (jumpUp)
-		m_Position.y -= 10.0f;
+	if(jumpUp)
+		m_Position.y -=  10.0f;
 	else
 		m_Position.y += 10.0f;
 
@@ -98,24 +98,24 @@ void CPlayer::Move(const POINT& d3dxvShift, bool bUpdateVelocity)
 		m_Velocity.x += d3dxvShift.x;
 		m_Velocity.y -= d3dxvShift.y;
 	}
-	m_Position.x += m_Velocity.x;
-	m_Position.y += m_Velocity.y;
-	//초기화
+		m_Position.x += m_Velocity.x;
+		m_Position.y += m_Velocity.y;
+		//초기화
 }
 
 
 
-void CPlayer::DrawSprite(HDC hDC, int g_nSpriteCurrent, CCamera cam)
+void CPlayer::DrawSprite(HDC hDC, int g_nSpriteCurrent)
 {
 	// 0605. 스프라이트 올려주는 타이머를 Player 클래스안에 넣을순없을까? 
 
-	UINT nSpriteWidth = m_ppTexture[0].GetWidth() / g_nSpriteX;
-	UINT nSpriteHeight = m_ppTexture[0].GetHeight() / g_nSpriteY;
+	UINT nSpriteWidth = m_ppTexture[m_State].Texture.GetWidth() / m_ppTexture[m_State].g_nSpriteX;
+	UINT nSpriteHeight = m_ppTexture[m_State].Texture.GetHeight() / m_ppTexture[m_State].g_nSpriteY;
 
-	UINT xCoord = g_nSpriteCurrent % g_nSpriteX;
-	UINT yCoord = g_nSpriteCurrent / g_nSpriteX;
+	UINT xCoord = g_nSpriteCurrent % m_ppTexture[m_State].g_nSpriteX;
+	UINT yCoord = g_nSpriteCurrent / m_ppTexture[m_State].g_nSpriteX;
 
-	m_ppTexture[m_State].Draw(hDC
+	m_ppTexture[m_State].Texture.Draw(hDC
 		, m_Position.x - nSpriteWidth / 2, m_Position.y - nSpriteHeight / 2, nSpriteWidth, nSpriteHeight
 		, xCoord * nSpriteWidth, yCoord * nSpriteHeight
 		, nSpriteWidth, nSpriteHeight

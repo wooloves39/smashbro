@@ -1,14 +1,17 @@
 #pragma once
 #include "stdafx.h"
 #include "Camera.h"
-
+#include "Player.h"
 class Tile {
 private:
 	CImage tileimage;
 	int object_num;
 	POINT *object_pos;//그려지는 좌표
-	POINT *object_realpos;//충돌할 영역
+//	POINT *object_realpos;//충돌할 영역
+	RECT *object_realpos;//충돌할 영역
 	POINT size;
+	POINT realsize;
+	int downbalance;
 public:
 	Tile() {}
 	void load(LPCTSTR pstname) { tileimage.Load(pstname); }
@@ -19,7 +22,7 @@ public:
 	void setobject(int num) {
 		object_num = num;
 		object_pos = new POINT[object_num];
-		object_realpos = new POINT[object_num];
+		object_realpos = new RECT[object_num];
 	}
 	void draw(HDC hdc, CCamera cam) {
 		int pitch = tileimage.GetWidth();
@@ -27,9 +30,21 @@ public:
 		for (int i = 0; i < object_num; ++i) {
 			tileimage.TransparentBlt(hdc, object_pos[i].x - size.x - cam.getPos().x*(1280 / 940) * 3, object_pos[i].y - size.y + cam.getPos().y, size.x * 2, size.y * 2,
 				0, 0, pitch, height, RGB(64, 72, 96));
+			object_realpos[i].left = object_pos[i].x - realsize.x - cam.getPos().x*(1280 / 940) * 3;
+			object_realpos[i].top = object_pos[i].y - realsize.y + cam.getPos().y + downbalance;
+			object_realpos[i].right = object_pos[i].x + realsize.x - cam.getPos().x*(1280 / 940) * 3;
+			object_realpos[i].bottom = object_pos[i].y + realsize.y + cam.getPos().y + downbalance;
+			Rectangle(hdc, object_realpos[i].left, object_realpos[i].top, object_realpos[i].right, object_realpos[i].bottom);
+
 		}
 	}
 	void setsize(int xsize, int ysize) { size.x = xsize; size.y = ysize; }
+	void setRealsize(int xsize, int ysize, int balance) {
+		realsize.x = xsize, realsize.y = ysize;
+		downbalance = balance;
+	}
+	RECT collisionPos(int num) { return object_realpos[num]; }
+	int Get_ob_num() { return object_num; }
 	~Tile() {}
 };
 class map
@@ -58,11 +73,13 @@ public:
 			tiles[0].setobject(1);
 			tiles[0].setPos(rectView.right / 2, rectView.bottom - 150, 0);
 			tiles[0].setsize(400, 140);
+			tiles[0].setRealsize(390, 50, 0);
 			tiles[1].load(TEXT("map\\map1\\image2.bmp"));
 			tiles[1].setobject(2);
 			tiles[1].setPos(rectView.right / 3, rectView.bottom - 500, 0);
 			tiles[1].setPos(rectView.right / 3 * 2, rectView.bottom - 500, 1);
 			tiles[1].setsize(160, 40);
+			tiles[1].setRealsize(150, 30, 0);
 			break;
 		case 2:
 			obnum = 4;
@@ -72,19 +89,23 @@ public:
 			tiles[0].setobject(1);
 			tiles[0].setPos(rectView.right / 2, rectView.bottom - 150, 0);
 			tiles[0].setsize(500, 140);
+			tiles[0].setRealsize(490, 20, 50);
 			tiles[1].load(TEXT("map\\map2\\image2.bmp"));
 			tiles[1].setobject(1);
 			tiles[1].setPos(rectView.right / 3, rectView.bottom - 500, 0);
 			tiles[1].setsize(150, 100);
+			tiles[1].setRealsize(140, 5, 40);
 			tiles[2].load(TEXT("map\\map2\\image3.bmp"));
 			tiles[2].setobject(1);
 			tiles[2].setPos(rectView.right / 3 * 2, rectView.bottom - 500, 0);
 			tiles[2].setsize(150, 100);
+			tiles[2].setRealsize(140, 5, 40);
 			tiles[3].load(TEXT("map\\map2\\image4.bmp"));
 			tiles[3].setobject(2);
 			tiles[3].setPos(rectView.right / 2 - 50, rectView.bottom - 400, 0);
 			tiles[3].setPos(rectView.right / 2 + 50, rectView.bottom - 400, 1);
 			tiles[3].setsize(100, 20);
+			tiles[3].setRealsize(95, 20, 0);
 			break;
 		case 3:
 			obnum = 2;
@@ -94,10 +115,12 @@ public:
 			tiles[0].setobject(1);
 			tiles[0].setPos(rectView.right / 2, rectView.bottom - 300, 0);
 			tiles[0].setsize(400, 400);
+			tiles[0].setRealsize(390, 30, 250);
 			tiles[1].load(TEXT("map\\map3\\image2.bmp"));
 			tiles[1].setobject(1);
 			tiles[1].setPos(rectView.right / 2, rectView.bottom - 500, 0);
 			tiles[1].setsize(470, 67);
+			tiles[1].setRealsize(460, 30, 0);
 			break;
 		case 4:
 			obnum = 3;
@@ -107,14 +130,17 @@ public:
 			tiles[0].setobject(1);
 			tiles[0].setPos(rectView.right / 2, rectView.bottom - 250, 0);
 			tiles[0].setsize(600, 300);
+			tiles[0].setRealsize(590, 50, 220);
 			tiles[1].load(TEXT("map\\map4\\image2.bmp"));
 			tiles[1].setobject(1);
 			tiles[1].setPos(rectView.right / 2, rectView.bottom - 200, 0);
 			tiles[1].setsize(300, 40);
+			tiles[1].setRealsize(290, 30, 0);
 			tiles[2].load(TEXT("map\\map4\\image3.bmp"));
 			tiles[2].setobject(1);
 			tiles[2].setPos(rectView.right / 2, rectView.bottom - 250, 0);
 			tiles[2].setsize(150, 40);
+			tiles[2].setRealsize(145, 30, 0);
 			break;
 		case 5:
 			obnum = 2;
@@ -124,15 +150,32 @@ public:
 			tiles[0].setobject(1);
 			tiles[0].setPos(rectView.right / 2, rectView.bottom - 50, 0);
 			tiles[0].setsize(450, 250);
+			tiles[0].setRealsize(430, 200, 0);
 			tiles[1].load(TEXT("map\\map5\\image2.bmp"));
 			tiles[1].setobject(3);
 			tiles[1].setPos(rectView.right / 4, rectView.bottom - 400, 0);
 			tiles[1].setPos(rectView.right / 4 * 3, rectView.bottom - 400, 1);
 			tiles[1].setPos(rectView.right / 2, rectView.bottom - 500, 2);
 			tiles[1].setsize(100, 50);
+			tiles[1].setRealsize(90, 50, 0);
 			break;
 		default:
 			break;
+		}
+	}
+	void collision(CPlayer& player) {
+		player.mapobject_collsion = false;
+		for (int i = 0; i < obnum; ++i) {
+			for (int j = 0; j < tiles[i].Get_ob_num(); j++) {
+				if (player.GetPosition().x <= tiles[i].collisionPos(j).left)continue;
+				if (player.GetPosition().x >= tiles[i].collisionPos(j).right)continue;
+				if (player.GetPosition().y <= tiles[i].collisionPos(j).top - 30)continue;
+				if (player.GetPosition().y >= tiles[i].collisionPos(j).bottom)continue;
+				player.SetPosition(player.GetPosition().x, tiles[i].collisionPos(j).top - 30);
+				cout << "바닥에 닿음" << endl;
+				player.mapobject_collsion = true;
+				return;
+			}
 		}
 	}
 	~map();
