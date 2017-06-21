@@ -14,6 +14,7 @@ private:
 	POINT size;
 	POINT realsize;
 	int downbalance;
+	
 public:
 	Tile() {}
 	void load(LPCTSTR pstname) { tileimage.Load(pstname); }
@@ -55,7 +56,10 @@ private:
 	CImage background;
 	Tile* tiles;
 	int obnum;
+
 public:
+	System*	mapSystem;
+	Sound* mapSound;
 	map();
 	void draw(HDC hdc, RECT rectView, CCamera cam, int stage)
 	{
@@ -85,6 +89,7 @@ public:
 			tiles[1].setPos(-450, rectView.bottom - 300, 4);
 			tiles[1].setsize(160, 40);
 			tiles[1].setRealsize(150, 20, -10);
+			mapSystem->createSound("sound\\map1.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		case 2:
 			obnum = 4;
@@ -115,6 +120,7 @@ public:
 			tiles[3].setPos(-200, rectView.bottom - 200, 5);
 			tiles[3].setsize(100, 20);
 			tiles[3].setRealsize(95, 20, -20);
+			mapSystem->createSound("sound\\map2.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		case 3:
 			obnum = 3;
@@ -136,6 +142,7 @@ public:
 			tiles[2].setPos(-400, rectView.bottom - 200, 1);
 			tiles[2].setsize(100, 50);
 			tiles[2].setRealsize(90, 20, -40);
+			mapSystem->createSound("sound\\map3.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		case 4:
 			obnum = 3;
@@ -155,7 +162,8 @@ public:
 			tiles[2].setobject(1);
 			tiles[2].setPos(0, rectView.bottom - 250, 0);
 			tiles[2].setsize(150, 40);
-			tiles[2].setRealsize(145, 20, -10);
+			tiles[2].setRealsize(145, 20, -10); 
+			mapSystem->createSound("sound\\map4.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		case 5:
 			obnum = 2;
@@ -176,6 +184,7 @@ public:
 			tiles[1].setPos(400, rectView.bottom - 400, 5);
 			tiles[1].setsize(100, 50);
 			tiles[1].setRealsize(90, 20, -50);
+			mapSystem->createSound("sound\\map5.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		default:
 			break;
@@ -191,13 +200,19 @@ public:
 					if (player.GetPosition().y <= tiles[i].collisionPos(j).top - 30)continue;
 					if (player.GetPosition().y >= tiles[i].collisionPos(j).bottom)continue;
 					player.SetPosition(player.GetPosition().x, tiles[i].collisionPos(j).top - 20);
-					//	cout << "¹Ù´Ú¿¡ ´êÀ½" << endl;
+					
 					player.mapobject_collsion = true;
 
 					return;
 				}
 			}
 		}
+	}
+	void release() {
+		delete[] tiles;
+		background.Destroy();
+		//delete[] mapSystem;
+//		delete[] mapSound;
 	}
 	~map();
 };

@@ -22,6 +22,14 @@ CPlayer::CPlayer(int nStatus)
 	m_State = BASIC_RIGHT;
 
 	JumpHeight = 50.0f;
+	System_Create(&charSystem);
+	charSystem->init(5, FMOD_INIT_NORMAL, NULL);
+
+	charSystem->createSound("sound\\imfact\\hit.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[0]);
+	charSystem->createSound("sound\\imfact\\Jump.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[1]);
+	charSystem->createSound("sound\\imfact\\fly.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[2]);
+	charSystem->createSound("sound\\imfact\\Game over.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[3]);
+	pChannel->setVolume(0.3);
 }
 
 CPlayer::~CPlayer()
@@ -35,7 +43,29 @@ void CPlayer::SetStatus(int state)
 	{
 		m_BeforeState = m_State;
 		m_State = state;
-		StateChange();
+		switch (m_State)
+		{
+		case JUMP_RIGHT:
+		case JUMP_LEFT:
+			charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+			break;
+		case ATTACK1_RIGHT:
+		case ATTACK1_LEFT:
+		case ATTACK2_RIGHT:
+		case ATTACK2_LEFT:
+		case KICK_RIGHT:
+		case KICK_LEFT:
+			charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[0], false, &pChannel);
+			break;
+		case FLY_LEFT:
+		case FLY_RIGHT:
+			charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[2], false, &pChannel);
+			break;
+		default:
+			break;
+		}
+		StateChangeX();
+		StateChangeY();
 	}
 }
 
@@ -78,24 +108,23 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 
 void  CPlayer::JumpTimer(void)
 {
-	if (m_Position.y > JumpPosY - JumpHeight)
-		m_Position.y -= 10.0f;
-	else
+	if (m_bJump == true)
 	{
-		if (m_State == JUMP_LEFT) m_State = BASIC_LEFT;
-		if (m_State == JUMP_RIGHT) m_State = BASIC_RIGHT;
+		m_Position.y += JumpHeight;
 	}
+
 }
 
 void CPlayer::Move(const POINT& d3dxvShift, bool bUpdateVelocity)
 {
 	if (bUpdateVelocity)
 	{
-		if (m_Velocity.x <= 10)
+		if (m_Velocity.x <= 5 && m_Velocity.x >= -5)
 			m_Velocity.x += d3dxvShift.x;
 		m_Velocity.y += d3dxvShift.y;
 	}
 	else {
+
 		m_Velocity.x += d3dxvShift.x;
 		m_Velocity.y -= d3dxvShift.y;
 	}
@@ -159,8 +188,10 @@ void CPlayer::DrawSprite(HDC hDC, int g_nSpriteCurrent, int x, int y) {
 //보완
 void CPlayer::smashing(int damage, int power, bool smash)
 {
+	
 	if (smash == true) {
 		if (hit == false) {
+			StateChangeY();
 			if (m_State % 2 == 1)
 				Vmov.x = Vx(power*(damage / 100));
 			else
@@ -170,16 +201,15 @@ void CPlayer::smashing(int damage, int power, bool smash)
 		}
 		else {
 			Vmov.x = frameX(Vmov.x, 1);
-			cout << Vmov.y << endl;
-			cout << Vy(power*(damage / 100))*0.4 << endl;
-			if (Vmov.y > Vy(power*(damage / 100))*0.4)
+
+			if (Vmov.y > Vy(power*(damage / 100))*0.6)
 				Vmov.y = frameY(Vmov.y, 2);
 			else {
 				Vmov.x = 0;
 				Vmov.y = 0;
-				//smash = false;
 				hit = false;
-				StateChange();
+				StateChangeX();
+				StateChangeY();
 				sma = false;
 				if (m_State % 2 == 1)m_State = JUMP_LEFT;
 				else m_State = JUMP_RIGHT;
@@ -199,13 +229,13 @@ void CPlayer::smashing(int damage, int power, bool smash)
 		}
 		else {
 			Vmov.x = frameX(Vmov.x, 1);
-			if (Vmov.y > Vy(power*(damage / 100)*0.4));
+			if (Vmov.y > Vy(power*(damage / 100)*0.4)) { StateChangeY(); Vmov.y = 0; }
 			else {
 				Vmov.x = 0;
 				Vmov.y = 0;
-				//smash = false;
 				hit = false;
-				StateChange();
+				StateChangeX();
+				StateChangeY();
 				sma = false;
 			}
 		}
@@ -218,11 +248,12 @@ void CPlayer::gravity(void) {
 	static POINT Vmov = { 0,0 };
 	if (mapobject_collsion == false)
 	{
-		if (Vmov.y > -6)
-			Vmov.y = frameY(Vmov.y, 3);
+		if (Vmov.y > -3)
+			Vmov.y = frameY(Vmov.y, 1);
 	}
 	else {
-		StateChange();
+		JumpCount = 0;
+		StateChangeY();
 		Vmov.y = 0;
 	}
 	Move(Vmov, false);
@@ -231,90 +262,89 @@ void CPlayer::gravity(void) {
 void CPlayer::defance(CPlayer **other, int player_num)
 {
 	POINT other_POS;
-	if (impact == true) {
-		attack_SpriteCurrent = other[attacker_num]->Get_SPcurrent();
-	
-		if (attack_SpriteCurrent == attack_SpriteCount||other[attacker_num]->GetStatus()<6)
-			impact = false;
-	}
-	else {
-		for (int i = 0; i < player_num; ++i) {
-			other_POS.x = other[i]->GetPosition().x;
-			other_POS.y = other[i]->GetPosition().y;
-			if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
-			else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))//버튼 한번당 한번만 적용되게 만들고 싶다
-			{
-				switch (other[i]->GetStatus())
-				{
-				case HATTACK_RIGHT:
-					if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
+	if (GetStatus() != 14 && GetStatus() != 15) {
+		if (impact_de == true) {
+			attack_SpriteCurrent = other[attacker_num]->Get_SPcurrent();
 
-						sma = true;
-						attacker_num = i;
-						SetStatus(FLY_LEFT);
-						gage += 4;
-						cout << "강하게 맞음" << sma << attacker_num << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact = true;
+			if (attack_SpriteCurrent == attack_SpriteCount || other[attacker_num]->GetStatus() < 6)
+			{
+				impact_de = false;
+				impact = false;
+			}
+		}
+		else {
+			for (int i = 0; i < player_num; ++i) {
+				other_POS.x = other[i]->GetPosition().x;
+				other_POS.y = other[i]->GetPosition().y;
+				if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
+				else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))//버튼 한번당 한번만 적용되게 만들고 싶다
+				{
+					switch (other[i]->GetStatus())
+					{
+					case HATTACK_RIGHT:
+						if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
+
+							sma = true;
+							attacker_num = i;
+							SetStatus(FLY_LEFT);
+							gage += 4;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					case HATTACK_LEFT:
+						if (m_Position.x + 100 > other_POS.x&&m_Position.x < other_POS.x) {
+							sma = true;
+							attacker_num = i;
+							SetStatus(FLY_RIGHT);
+							gage += 4;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					case ATTACK1_RIGHT:
+						if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
+							sma = true;
+							attacker_num = i;
+							SetStatus(DYE_LEFT);
+							gage += 2;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					case ATTACK1_LEFT:
+						if (m_Position.x + 80 > other_POS.x&&m_Position.x < other_POS.x) {
+							sma = true;
+							attacker_num = i;
+							SetStatus(DYE_RIGHT);
+							gage += 2;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					case KICK_RIGHT:
+						if (m_Position.x - 90 < other_POS.x&&m_Position.x > other_POS.x) {
+							sma = true;
+							attacker_num = i;
+							SetStatus(DYE_LEFT);
+							gage += 2;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					case KICK_LEFT:
+						if (m_Position.x + 90 > other_POS.x&&m_Position.x < other_POS.x) {
+							sma = true;
+							attacker_num = i;
+							SetStatus(DYE_RIGHT);
+							gage += 2;
+							attack_SpriteCount = other[attacker_num]->Get_SPcount();
+							impact_de = true;
+						}
+						break;
+					default:
+						break;
 					}
-					return;
-				case HATTACK_LEFT:
-					if (m_Position.x + 100 > other_POS.x&&m_Position.x < other_POS.x) {
-						sma = true;
-						attacker_num = i;
-						SetStatus(FLY_RIGHT);
-						gage += 4;
-						cout << "강하게 맞음" << sma << attacker_num << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact =true;
-					}
-					return;
-				case ATTACK1_RIGHT:
-					if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
-						sma = true;
-						attacker_num = i;
-						SetStatus(DYE_LEFT);
-						gage += 2;
-						cout << "적당히 맞음" << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact = true;
-					}
-					break;
-				case ATTACK1_LEFT:
-					if (m_Position.x + 80 > other_POS.x&&m_Position.x < other_POS.x) {
-						sma = true;
-						attacker_num = i;
-						SetStatus(DYE_RIGHT);
-						gage += 2;
-						cout << "적당히 맞음" << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact = true;
-					}
-					break;
-				case KICK_RIGHT:
-					if (m_Position.x - 90 < other_POS.x&&m_Position.x > other_POS.x) {
-						sma = true;
-						attacker_num = i;
-						SetStatus(DYE_LEFT);
-						gage += 2;
-						cout << "적당히 맞음" << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact = true;
-					}
-					break;
-				case KICK_LEFT:
-					if (m_Position.x + 90 > other_POS.x&&m_Position.x < other_POS.x) {
-						sma = true;
-						attacker_num = i;
-						SetStatus(DYE_RIGHT);
-						gage += 2;
-						cout << "적당히 맞음" << endl;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
-						impact = true;
-					}
-					break;
-				default:
-					break;
 				}
 			}
 		}
@@ -322,72 +352,89 @@ void CPlayer::defance(CPlayer **other, int player_num)
 }
 //킥추가
 void CPlayer::attack(CPlayer **other, int player_num) {
+	static int myindex;
 	POINT other_POS;
 	for (int i = 0; i < player_num; ++i) {
-		other_POS.x = other[i]->GetPosition().x;
-		other_POS.y = other[i]->GetPosition().y;
+		other_POS = other[i]->GetPosition();
 		if (other[i]->impact == false) {
-			if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
+			if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y) { myindex = i; continue; }
 			else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))
 			{
 				switch (m_State)
 				{
 				case HATTACK_RIGHT:
 					if (m_Position.x + 100 > other_POS.x&&m_Position.x < other_POS.x) {
-						cout << "강하게 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_LEFT)
 							damage_num += 5;
 						else
 							damage_num += 12;
+
 					}
 					break;
 				case HATTACK_LEFT:
 					if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
-						cout << "강하게 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						if (other[i]->GetStatus() == DEFENSE_RIGHT || other[i]->GetStatus() == DEFENSE_LEFT)
 							damage_num += 5;
 						else
 							damage_num += 12;
+
+
 					}
 					break;
 				case ATTACK1_RIGHT:
 					if (m_Position.x + 80 > other_POS.x&&m_Position.x < other_POS.x) {
-						cout << "적당히 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_RIGHT) {
+
 							damage_num += 3;
+						}
 						else
 							damage_num += 8;
 						gage += 6;
+
+
 					}
 					break;
 				case ATTACK1_LEFT:
 					if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
-						cout << "적당히 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						
+						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_RIGHT)
 							damage_num += 3;
 						else
 							damage_num += 8;
 						gage += 6;
+					
 					}
 					break;
 				case KICK_RIGHT:
 					if (m_Position.x + 90 > other_POS.x&&m_Position.x < other_POS.x) {
-						cout << "적당히 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_RIGHT)
 							damage_num += 3;
 						else
 							damage_num += 8;
 						gage += 6;
+
 					}
 					break;
 				case KICK_LEFT:
 					if (m_Position.x - 90 < other_POS.x&&m_Position.x > other_POS.x) {
-						cout << "적당히 때림" << endl;
-						if (other[i]->GetStatus() == 14 || other[i]->GetStatus() == 15)
+						other[i]->attacker_num = myindex;
+						other[i]->impact = true;
+						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_RIGHT)
 							damage_num += 3;
 						else
 							damage_num += 8;
 						gage += 6;
+
 					}
 					break;
 				default:
@@ -404,7 +451,6 @@ void CPlayer::Playercollision(CPlayer **other, int player_num) {
 	{
 		other_POS.x = other[i]->GetPosition().x;
 		other_POS.y = other[i]->GetPosition().y;
-		//cout << other_POS.x << ' ' << other_POS.y << endl;
 		if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
 		else {
 			if ((m_Position.y + 50 > other_POS.y) && (m_Position.y - 50 < other_POS.y))

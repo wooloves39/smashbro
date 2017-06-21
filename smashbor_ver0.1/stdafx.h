@@ -63,7 +63,9 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-
+#include "fmod.hpp"
+#pragma	comment (lib, "fmodex_vc.lib")
+using namespace FMOD;
 using namespace std;
 
 
