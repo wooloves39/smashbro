@@ -292,7 +292,10 @@ namespace FMOD
         FMOD_RESULT F_API getMute                (bool *mute);
         FMOD_RESULT F_API setPriority            (int priority);
         FMOD_RESULT F_API getPriority            (int *priority);
-        FMOD_RESULT F_API setPosition            (unsigned int position, FMOD_TIMEUNIT postype);
+        FMOD_RESULT F_API 
+			
+			
+			ition            (unsigned int position, FMOD_TIMEUNIT postype);
         FMOD_RESULT F_API getPosition            (unsigned int *position, FMOD_TIMEUNIT postype);
         FMOD_RESULT F_API setReverbProperties    (const FMOD_REVERB_CHANNELPROPERTIES *prop);
         FMOD_RESULT F_API getReverbProperties    (FMOD_REVERB_CHANNELPROPERTIES *prop);

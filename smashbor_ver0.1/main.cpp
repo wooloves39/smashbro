@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "Player.h"
-#include "AIPlayer.h"
 #include"map.h"
 
 //06/17  맵 카메라 H 전체 교체 필요 점수 판 만들어 놨고 이미지 할당해놔야함.
@@ -49,14 +48,14 @@ CImage demage_UI;
 void Timer(void);
 void setranking() {
 	pChannel[0]->stop();
-	pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ranking-2], false, &pChannel[0]);
+	pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ranking - 2], false, &pChannel[0]);
 	state = ranking;
 	for (int i = 0; i < 3; i++) {
 		if (m_Player[i]->live == true)m_Player[i]->PlayTime_num = 99 - PlayTime;
 		m_Player[i]->total_score_num = m_Player[i]->PlayTime_num*m_Player[i]->damage_num;
 	}
 	for (int i = 0; i < 3; ++i) {
-	
+
 		int rank = 1;
 		for (int j = 0; j < 3; j++) {
 			if (m_Player[i]->total_score_num < m_Player[j]->total_score_num)rank++;
@@ -67,222 +66,20 @@ void setranking() {
 			m_Player[i]->SetStatus(LOSE);
 		m_Player[i]->text_rank();
 	}
-	
+
 }
-void KeyState(void)
-{
-	if (state == play) {
-		static bool smash = false;
-		static bool attack = false;
 
-		DWORD dwDirection = 0;
-		if (m_Player[0]->m_bJump == true)
-		{
-			if (m_Player[0]->JumpHeight > 0)
-			{
-				m_Player[0]->m_bJump = false;
-				m_Player[0]->JumpHeight = 0.f;
-
-				if (m_Player[0]->DIR == DIRECTION_LEFT)
-					m_Player[0]->SetStatus(BASIC_LEFT);
-				if (m_Player[0]->DIR == DIRECTION_RIGHT)
-					m_Player[0]->SetStatus(BASIC_RIGHT);
-			
-			}
-
-			else
-			{
-				m_Player[0]->m_fTime += 0.7f;
-				m_Player[0]->JumpHeight += 6.f * -1 + (0.098f * m_Player[0]->m_fTime * m_Player[0]->m_fTime) / 2.f;
-				
-			}
-			//힘*-sin + (중력가속도 * t^2(시간의 제곱)) / 2;
-		}
-
-
-
-		if (GetAsyncKeyState(VK_LEFT))
-		{
-			m_Player[0]->DIR = DIRECTION_LEFT;
-			dwDirection |= DIR_LEFT;
-
-			if (m_Player[0]->GetStatus() == DEFENSE_LEFT || m_Player[0]->GetStatus() == DEFENSE_RIGHT)
-			{
-
-			}
-			else if (m_Player[0]->GetStatus() == ATTACK1_LEFT || m_Player[0]->GetStatus() == ATTACK2_LEFT ||
-				m_Player[0]->GetStatus() == ATTACK1_RIGHT || m_Player[0]->GetStatus() == ATTACK2_RIGHT)
-			{
-
-			}
-			else
-			{
-
-				if (m_Player[0]->m_bJump != true)
-					m_Player[0]->SetStatus(MOVE_LEFT);
-
-				else
-					m_Player[0]->SetStatus(JUMP_LEFT);
-			}
-
-		
-		}
-		if (GetAsyncKeyState(VK_RIGHT))
-		{
-			m_Player[0]->DIR = DIRECTION_RIGHT;
-			dwDirection |= DIR_RIGHT;
-			if (m_Player[0]->GetStatus() == DEFENSE_LEFT || m_Player[0]->GetStatus() == DEFENSE_RIGHT)
-			{
-			}
-
-			else if (m_Player[0]->GetStatus() == ATTACK1_LEFT || m_Player[0]->GetStatus() == ATTACK2_LEFT ||
-				m_Player[0]->GetStatus() == ATTACK1_RIGHT || m_Player[0]->GetStatus() == ATTACK2_RIGHT)
-			{
-
-			}
-
-			else
-			{
-				if (m_Player[0]->m_bJump != true)
-					m_Player[0]->SetStatus(MOVE_RIGHT);
-
-				else
-					m_Player[0]->SetStatus(JUMP_RIGHT);
-			}
-
-			;
-		}
-
-
-		//	//점프시 
-
-		if (GetAsyncKeyState('D'))
-		{
-			m_Player[0]->JumpTimerOn = true;
-			if (m_Player[0]->GetStatus() == DEFENSE_LEFT || m_Player[0]->GetStatus() == DEFENSE_RIGHT)
-				return;
-			if (m_Player[0]->GetStatus() == ATTACK1_LEFT || m_Player[0]->GetStatus() == ATTACK2_LEFT ||
-				m_Player[0]->GetStatus() == ATTACK1_RIGHT || m_Player[0]->GetStatus() == ATTACK2_RIGHT)
-			{
-				return;
-
-			}
-			if (GameReady == false)
-			{
-			}
-
-			else
-			{
-
-				if (m_Player[0]->m_bJump == false)
-				{
-					if (m_Player[0]->JumpCount != 2) {
-						m_Player[0]->m_bJump = true;
-						m_Player[0]->m_dwJumpTime = GetTickCount();
-						m_Player[0]->m_fTime = 0.f;
-						m_Player[0]->JumpHeight = 0.f;
-						m_Player[0]->JumpPosY = m_Player[0]->GetPosition().y;
-
-						if (m_Player[0]->GetStatus() == BASIC_RIGHT)
-							m_Player[0]->SetStatus(JUMP_RIGHT);
-						else if (m_Player[0]->GetStatus() == BASIC_LEFT)
-							m_Player[0]->SetStatus(JUMP_LEFT);
-						++m_Player[0]->JumpCount;
-					}
-
-
-				
-				}
-			}
-
-		}
-		if (GetAsyncKeyState('S'))
-		{
-			if (smash == false) {
-				if (m_Player[0]->getSmashpoint() > 0)
-				{
-					if (m_Player[0]->GetStatus() % 2 == 0)
-					{
-						m_Player[0]->SetStatus(HATTACK_RIGHT);
-					}
-					if (m_Player[0]->GetStatus() % 2 == 1)
-					{
-						m_Player[0]->SetStatus(HATTACK_LEFT);
-					}
-					m_Player[0]->smashsub();
-				
-				}
-				else;
-			
-			}
-			smash = true;
-		}
-		else smash = false;
-		if (GetAsyncKeyState('A'))
-		{
-			if (attack == false) {
-				if (m_Player[0]->GetStatus() == BASIC_RIGHT || m_Player[0]->GetStatus() == MOVE_RIGHT)
-				{
-					m_Player[0]->SetStatus(ATTACK1_RIGHT);
-				}
-				else if (m_Player[0]->GetStatus() == BASIC_LEFT || m_Player[0]->GetStatus() == MOVE_LEFT)
-				{
-					m_Player[0]->SetStatus(ATTACK1_LEFT);
-				}
-
-				else if (m_Player[0]->m_State == ATTACK1_RIGHT)
-				{
-					m_Player[0]->n_AttackCount = 2;
-				}
-				else if (m_Player[0]->m_State == ATTACK1_LEFT)
-				{
-					m_Player[0]->n_AttackCount = 2;
-				}
-
-				//점프중 공격시 발차기 
-				else if (m_Player[0]->GetStatus() == JUMP_LEFT)
-				{
-					m_Player[0]->SetStatus(KICK_LEFT);
-				}
-				else if (m_Player[0]->GetStatus() == JUMP_RIGHT)
-				{
-					m_Player[0]->SetStatus(KICK_RIGHT);
-				}
-			}
-			attack = true;
-		}
-		else attack = false;
-		//막기
-		if (GetAsyncKeyState('W'))
-		{
-			if (m_Player[0]->GetStatus() == BASIC_RIGHT || m_Player[0]->GetStatus() == MOVE_RIGHT||m_Player[0]->GetStatus() ==DEFENSE_RIGHT )
-			{
-				m_Player[0]->SetStatus(DEFENSE_RIGHT);
-			}
-			else if (m_Player[0]->GetStatus() == BASIC_LEFT || m_Player[0]->GetStatus() == MOVE_LEFT || m_Player[0]->GetStatus() == DEFENSE_LEFT)
-			{
-				m_Player[0]->SetStatus(DEFENSE_LEFT);
-			}
-		}
-		if (dwDirection)
-		{
-			m_Player[0]->Move(dwDirection, 2.0f, true);
-			cam.setPos(m_Player[0]->GetPosition().x);
-		}
-		m_Player[0]->FrameEnd = false;
-	}
-}
 void createSound() {
 	System_Create(&pSystem);
 	pSystem->init(6, FMOD_INIT_NORMAL, NULL);
 
-	pSystem->createSound("sound\\opening.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &stateSound[title]);
+	/*pSystem->createSound("sound\\opening.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &stateSound[title]);
 	pSystem->createSound("sound\\choice.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &stateSound[cho_map]);
-	
+
 	pSystem->createSound("sound\\ranking.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &stateSound[ranking-2]);
 	pSystem->createSound("sound\\ending.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &stateSound[ending-2]);
 	pSystem->createSound("sound\\imfact\\choice.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &choiceSound);
-	pSystem->createSound("sound\\imfact\\change.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &changeSound);
+	pSystem->createSound("sound\\imfact\\change.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &changeSound);*/
 }
 
 void reset() {
@@ -295,9 +92,6 @@ void reset() {
 	for (int i = 0; i < 3; i++) {
 		m_Player[i]->release();
 	}
-	m_Player[0]->SetPosition(-200, 300);
-	m_Player[1]->SetPosition(200, 300);
-	m_Player[2]->SetPosition(0, 300);
 	PlayTime = 99;
 	pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[cho_map], false, &pChannel[0]);
 };
@@ -333,7 +127,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
-		KeyState();
+		if (m_Player != nullptr)
+			m_Player[0]->KeyState(cam,state);
 	}
 	return Message.wParam;
 }
@@ -342,7 +137,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
 void BuildPlayer(int nMyPlayer)
 {
-	
+
 	CPlayer *Mario = new CPlayer(26);
 	//BASIC 
 	Mario->SetTexture(BASIC_RIGHT,
@@ -414,7 +209,7 @@ void BuildPlayer(int nMyPlayer)
 		_T("character\\MARIO\\MARIO_VICTORY.png"), 4);
 	Mario->rank_state.Load("character\\MARIO\\marioUI.bmp");
 	Mario->UI.Load("character\\MARIO\\mario_UI.bmp");
-	
+
 
 	//2. Wario
 	CPlayer *Wario = new CPlayer(26);
@@ -566,12 +361,12 @@ void BuildPlayer(int nMyPlayer)
 	m_Player[0]->SetPosition(-200, 300);
 	m_Player[0]->SetStatus(BASIC_RIGHT);	//현재상태 셋팅 
 
-	m_Player[1] = new CAIPlayer(26);
+	m_Player[1] = new CPlayer(26);
 	m_Player[1]->SetPosition(200, 300);
 	m_Player[1]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
 	m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
 
-	m_Player[2] = new CAIPlayer(26);
+	m_Player[2] = new CPlayer(26);
 	m_Player[2]->SetPosition(0, 300);
 	m_Player[2]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
 
@@ -583,7 +378,7 @@ void BuildPlayer(int nMyPlayer)
 		m_Player[1]->rank_state = Wario->rank_state;
 		m_Player[1]->UI = Wario->UI;
 		m_Player[2]->SetImage(Luizy->GetImage());
-		m_Player[2]->rank_state=Luizy->rank_state;
+		m_Player[2]->rank_state = Luizy->rank_state;
 		m_Player[2]->UI = Luizy->UI;
 		m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
 		m_Player[2]->GetEnemyPlayer(m_Player[0], m_Player[1]);
@@ -636,7 +431,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		GetClientRect(hWnd, &rectView);
 		Title.Load(TEXT("sub_image\\titleUI.bmp"));
-		
+
 		Choice_cha[0].Load(TEXT("sub_image\\choice1.bmp"));
 		Choice_cha[1].Load(TEXT("sub_image\\choice2.bmp"));
 		Choice_cha[2].Load(TEXT("sub_image\\choice3.bmp"));
@@ -656,12 +451,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		Rankstate.Load(TEXT("sub_image\\ranking.bmp"));//랭킹 배경 구현
 		pChannel[0]->setVolume(stateVolume);
 		pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[title], false, &pChannel[0]);
-	
+
 		pChannel[1]->setVolume(0.5);
-	
+
 
 		wsprintf(Playtime_t, TEXT("%d"), PlayTime);
-	
+
 		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
@@ -754,13 +549,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				sel.x = 100 + 125 + 50;
 				sel.y = 175 + 120 + 50;
 				SetTimer(hWnd, 5, 1000, NULL);
-		
+
 				pChannel[0]->stop();
 				m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 				//--------PLAYER SET--------//
 
 				nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
 				BuildPlayer(nowPlayer);
+				
 				cam.setPos(m_Player[0]->GetPosition().x);
 				wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 				SetTimer(hWnd, 0, 100, NULL);
@@ -773,32 +569,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			*pKeyBuffer = NULL;
 			dwDirection = 0;
 			GameReady = true;
-
-
-
 			if (GetKeyboardState(pKeyBuffer))
 			{
 				SetTimer(hWnd, 2, 16, NULL);//점프타이머
 
 											//------PLAYER CHANGE------//
-				if (pKeyBuffer[VK_F1] & 0xf0) {
-					nowPlayer = MARIO;
-				}
 
-				if (pKeyBuffer[VK_F2] & 0xf0) {
-					nowPlayer = WARIO;
-					break;
-				}
-
-				if (pKeyBuffer[VK_F3] & 0xf0) {
-					nowPlayer = RUISY;
-				}
-				if (GetAsyncKeyState(VK_RIGHT))
-				{
-					dwDirection |= DIR_RIGHT;
-
-
-				}
 			}
 			break;
 		case ranking:
@@ -808,7 +584,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
 				reset();
 				KillTimer(hWnd, 0);
-				KillTimer(hWnd,6);
+			
 				break;
 			case 'S': {
 				state = ending;
@@ -820,7 +596,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case ending:
 			exit(1);
 			break;
-		
+
 		default:
 			break;
 		}
@@ -831,30 +607,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYUP:
 	{
-	switch (state)
-	{
-	case play:
-		if (m_Player[nowPlayer]->GetStatus() == MOVE_RIGHT)
+		switch (state)
 		{
-			m_Player[nowPlayer]->SetStatus(BASIC_RIGHT);
-			break;
+		case play:
+			if (m_Player[0]->GetStatus() == MOVE_RIGHT)
+			{
+				m_Player[0]->SetStatus(BASIC_RIGHT);
+				break;
+			}
+			if (m_Player[0]->GetStatus() == MOVE_LEFT)
+			{
+				m_Player[0]->SetStatus(BASIC_LEFT);
+				break;
+			}
+			if (m_Player[0]->GetStatus() == DEFENSE_RIGHT)
+			{
+				m_Player[0]->SetStatus(BASIC_RIGHT);
+				break;
+			}
+			if (m_Player[0]->GetStatus() == DEFENSE_LEFT)
+			{
+				m_Player[0]->SetStatus(BASIC_LEFT);
+				break;
+			}
 		}
-		if (m_Player[nowPlayer]->GetStatus() == MOVE_LEFT)
-		{
-			m_Player[nowPlayer]->SetStatus(BASIC_LEFT);
-			break;
-		}
-		if (m_Player[nowPlayer]->GetStatus() == DEFENSE_RIGHT)
-		{
-			m_Player[nowPlayer]->SetStatus(BASIC_RIGHT);
-			break;
-		}
-		if (m_Player[nowPlayer]->GetStatus() == DEFENSE_LEFT)
-		{
-			m_Player[nowPlayer]->SetStatus(BASIC_LEFT);
-			break;
-		}
-	}
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
 	break;
@@ -863,9 +639,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (state == play) //점프 고치면 수정해야함
 		{
+			cam.add();
 			static int count = 0;
-			if (count >=2||m_Player[0]->live==false) {
+			if (count >= 2 || m_Player[0]->live == false) {
 				setranking();
+				count = 0;
 				KillTimer(hWnd, 5);
 				KillTimer(hWnd, 6);
 				break;
@@ -873,45 +651,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			count = 0;
 			for (int i = 0; i < nPlayer; ++i)
 			{
-				if (m_Player[i]->GetPosition().y > 800&& m_Player[i]->live==true) {
+				m.collision(*m_Player[i]);
+				m_Player[i]->Playercollision(m_Player, nPlayer);
+				m_Player[i]->gravity();
+				m_Player[i]->attack(m_Player, nPlayer);
+				m_Player[i]->defance(m_Player, nPlayer);
+				if (m_Player[i]->GetStatus() == FLY_RIGHT || m_Player[i]->GetStatus() == FLY_LEFT)
+					m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 20, true);
+				else if (m_Player[i]->GetStatus() == DYE_RIGHT || m_Player[i]->GetStatus() == DYE_LEFT)
+					m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 10, false);
+
+				if (m_Player[i]->GetPosition().y > 800 && m_Player[i]->live == true) {
 					m_Player[i]->live = false;
 					m_Player[i]->charSystem->playSound(FMOD_CHANNEL_REUSE, m_Player[i]->charSound[3], false, &m_Player[i]->pChannel);
 					m_Player[i]->PlayTime_num = 99 - PlayTime;
 				}
 				if (m_Player[i]->live == false)++count;
-				if (m_Player[i]->GetStatus() == JUMP_LEFT || m_Player[i]->GetStatus() == JUMP_RIGHT)
-				{
-					if (m_Player[i]->UsingJumpFrame == true)
-					{
-						m.collision(*m_Player[i]);
-						m_Player[i]->Playercollision(m_Player, nPlayer);
-						m_Player[i]->attack(m_Player, nPlayer);
-						m_Player[i]->defance(m_Player, nPlayer);
-						if (m_Player[i]->GetStatus() == FLY_RIGHT || m_Player[i]->GetStatus() == FLY_LEFT)
-							m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 20, true);
-						else if (m_Player[i]->GetStatus() == DYE_RIGHT || m_Player[i]->GetStatus() == DYE_LEFT)
-							m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 10, false);
-						else
-						{
-							m_Player[i]->gravity();
-						}
-					
-					}
-				}
-				else
-				{
-					m.collision(*m_Player[i]);
-					m_Player[i]->Playercollision(m_Player, nPlayer);
-					m_Player[i]->attack(m_Player, nPlayer);
-					m_Player[i]->defance(m_Player, nPlayer);
-					if (m_Player[i]->GetStatus() == FLY_RIGHT || m_Player[i]->GetStatus() == FLY_LEFT)
-						m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 20, true);
-					else if (m_Player[i]->GetStatus() == DYE_RIGHT || m_Player[i]->GetStatus() == DYE_LEFT)
-						m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 10, false);
-					else {
-						m_Player[i]->gravity();
-					}
-				}
 				m_Player[i]->printdamege();
 				m_Player[i]->smashadd();
 			}
@@ -929,15 +684,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			if (state == play) {
 				m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
 				m_Player[2]->GetEnemyPlayer(m_Player[1], m_Player[0]);
-
-				for (int i = 0; i < 3; ++i)
-				{
-					if (m_Player[i]->GetStatus() == JUMP_LEFT || m_Player[i]->GetStatus() == JUMP_RIGHT)
-					{
-						if (m_Player[i]->JumpTimerOn)
-							m_Player[i]->JumpTimer();
-					}
-				}
 				m_Player[1]->CalculateDistanceTimer();
 				m_Player[2]->CalculateDistanceTimer();
 			}
@@ -947,6 +693,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 			if (PlayTime == 0) {
 				setranking();
+				
 				KillTimer(hWnd, 5);
 				KillTimer(hWnd, 6);
 			}
@@ -1028,16 +775,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			SelectObject(memDC, UIFont);
 			for (int i = 0; i < nPlayer; ++i)
 			{
-				
-					m_Player[i]->DrawSprite(memDC,
-						m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent, cam);
-					m_Player[i]->UI.TransparentBlt(memDC, 280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(0, 0, 0));
-					demage_UI.TransparentBlt(memDC, 340 + i * 350, 620, 150, 150, 0, 0, 170, 170, RGB(255, 255, 255));
-					SetBkMode(memDC, TRANSPARENT);
-					TextOut(memDC, 400 + i * 350 - 10, 690, TEXT(m_Player[i]->getDamege()), strlen(m_Player[i]->getDamege()));
+
+				m_Player[i]->DrawSprite(memDC,
+					m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent, cam);
+				m_Player[i]->UI.TransparentBlt(memDC, 280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(0, 0, 0));
+				demage_UI.TransparentBlt(memDC, 340 + i * 350, 620, 150, 150, 0, 0, 170, 170, RGB(255, 255, 255));
+				SetBkMode(memDC, TRANSPARENT);
+				TextOut(memDC, 400 + i * 350 - 10, 690, TEXT(m_Player[i]->getDamege()), strlen(m_Player[i]->getDamege()));
 			}
 
-			
+
 			SelectObject(memDC, TimeFont);
 			SetBkMode(memDC, TRANSPARENT);
 			TextOut(memDC, 650, 20, TEXT(Playtime_t), strlen(Playtime_t));
@@ -1046,11 +793,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			Rankstate.Draw(memDC, 0, 0, rectView.right, rectView.bottom);
 			for (int i = 0; i < 3; i++) {
 				m_Player[i]->rank_state.Draw(memDC, 100, 50 + 230 * i, 1080, 200, 0, 0, 550, 115);
-				//																												RoundRect(memDC, 100, 50+230*i, rectView.right - 100, 50+230*i+200, 10, 10);
 				m_Player[i]->DrawSprite(memDC, m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent, 150, 100 + 230 * i);
 				SetTextColor(memDC, RGB(255, 255, 255));
 				SetBkMode(memDC, TRANSPARENT);
-				//TextOut(memDC, 150,100 + 245 * i, TEXT("Mario"), 6);
 				TextOut(memDC, 300, 100 + 245 * i, TEXT(m_Player[i]->damage), strlen(m_Player[i]->damage));
 				TextOut(memDC, 600, 100 + 245 * i, TEXT(m_Player[i]->PlayTime), strlen(m_Player[i]->PlayTime));
 				TextOut(memDC, 820, 100 + 245 * i, TEXT(m_Player[i]->total_score), strlen(m_Player[i]->total_score));
@@ -1085,7 +830,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, iMsg, wParam, lParam);
 }
 
-void Timer(void)
+void Timer(void)//플레이어 클래스 안에 종속 시키기
 {
 	// 스프라이트는 1/60초 마다 갱신하여 약 1.1초 주기로 반복된다.
 	for (int i = 0; i < nPlayer; ++i)
@@ -1109,7 +854,7 @@ void Timer(void)
 				|| m_Player[i]->m_State == MOVE_RIGHT || m_Player[i]->m_State == MOVE_LEFT
 				|| m_Player[i]->m_State == JUMP_RIGHT || m_Player[i]->m_State == JUMP_LEFT
 				|| m_Player[i]->m_State == FLY_RIGHT || m_Player[i]->m_State == FLY_LEFT
-				||m_Player[i]->m_State==WIN||m_Player[i]->m_State==LOSE)
+				|| m_Player[i]->m_State == WIN || m_Player[i]->m_State == LOSE)
 			{
 				(m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent)
 					%= m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCount;
@@ -1137,9 +882,11 @@ void Timer(void)
 					//-------------다운 상태에서 일어난 후 복귀하기---------------//
 					else if (m_Player[i]->GetStatus() == DYE_RIGHT) {
 						m_Player[i]->SetStatus(UP_RIGHT);
+						m_Player[i]->hit = false;
 					}
 					else if (m_Player[i]->GetStatus() == DYE_LEFT) {
 						m_Player[i]->SetStatus(UP_LEFT);
+						m_Player[i]->hit = false;
 					}
 					//------------여까지-------------------//
 					else

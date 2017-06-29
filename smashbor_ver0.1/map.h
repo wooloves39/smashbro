@@ -14,7 +14,7 @@ private:
 	POINT size;
 	POINT realsize;
 	int downbalance;
-	
+
 public:
 	Tile() {}
 	void load(LPCTSTR pstname) { tileimage.Load(pstname); }
@@ -162,7 +162,7 @@ public:
 			tiles[2].setobject(1);
 			tiles[2].setPos(0, rectView.bottom - 250, 0);
 			tiles[2].setsize(150, 40);
-			tiles[2].setRealsize(145, 20, -10); 
+			tiles[2].setRealsize(145, 20, -10);
 			mapSystem->createSound("sound\\map4.mp3", FMOD_HARDWARE | FMOD_LOOP_NORMAL, NULL, &mapSound);
 			break;
 		case 5:
@@ -192,7 +192,7 @@ public:
 	}
 	void collision(CPlayer& player) {
 		player.mapobject_collsion = false;
-		if(player.down==false){
+		if (player.down == false&&player.GetStatus()!=FLY_LEFT&&player.GetStatus() != FLY_RIGHT) {
 			for (int i = 0; i < obnum; ++i) {
 				for (int j = 0; j < tiles[i].Get_ob_num(); j++) {
 					if (player.GetPosition().x <= tiles[i].collisionPos(j).left)continue;
@@ -200,9 +200,11 @@ public:
 					if (player.GetPosition().y <= tiles[i].collisionPos(j).top - 30)continue;
 					if (player.GetPosition().y >= tiles[i].collisionPos(j).bottom)continue;
 					player.SetPosition(player.GetPosition().x, tiles[i].collisionPos(j).top - 20);
-					
+					if (player.GetStatus() == JUMP_LEFT || player.GetStatus() == JUMP_RIGHT||
+						player.GetStatus() == FLY_LEFT || player.GetStatus() == FLY_RIGHT) {
+						player.SetStatus(player.GetStatus() % 2 + BASIC_RIGHT);
+					}
 					player.mapobject_collsion = true;
-
 					return;
 				}
 			}

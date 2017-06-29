@@ -11,17 +11,14 @@ CPlayer::CPlayer(int nStatus)
 	m_dirRight.x = 1.0f;
 	m_dirRight.y = 0.0f;
 
-	m_dirUp.x = 0.0f;
-	m_dirUp.y = 1.0f;
-
-	JumpPosY = 0.0f;
-
+	
+	
 	n_AttackCount = 1;
 
 	m_BeforeState = BASIC_RIGHT;
 	m_State = BASIC_RIGHT;
 
-	JumpHeight = 50.0f;
+	
 	System_Create(&charSystem);
 	charSystem->init(5, FMOD_INIT_NORMAL, NULL);
 
@@ -45,10 +42,7 @@ void CPlayer::SetStatus(int state)
 		m_State = state;
 		switch (m_State)
 		{
-		case JUMP_RIGHT:
-		case JUMP_LEFT:
-			charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
-			break;
+
 		case ATTACK1_RIGHT:
 		case ATTACK1_LEFT:
 		case ATTACK2_RIGHT:
@@ -64,8 +58,8 @@ void CPlayer::SetStatus(int state)
 		default:
 			break;
 		}
-		StateChangeX();
-		StateChangeY();
+			StateChangeX();
+		//StateChangeY();
 	}
 }
 
@@ -78,7 +72,7 @@ void CPlayer::SetTexture(int nIndex, LPCTSTR pCImage, int nSpriteCount)
 	m_ppTexture[nIndex].nSpriteCurrent = 0;
 }
 
-void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+void CPlayer::Move(DWORD dwDirection, float fDistance)
 {
 	if (dwDirection)
 	{
@@ -89,51 +83,55 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_RIGHT)
 		{
 			d3dxvShift.x += m_dirRight.x * fDistance;
-			d3dxvShift.y += m_dirRight.y * fDistance;
 		}
 		if (dwDirection & DIR_LEFT)
 		{
 			d3dxvShift.x -= m_dirRight.x * fDistance;
-			d3dxvShift.y -= m_dirRight.y * fDistance;
 		}
-		if (dwDirection & DIR_UP)
-		{
-			d3dxvShift.x += m_dirUp.x * fDistance;
-			d3dxvShift.y += m_dirUp.y * fDistance;
-		}
-		Move(d3dxvShift, bUpdateVelocity);
+		
+		if (d3dxvShift.x != 0.0f)
+			MoveX(d3dxvShift);
+		if (d3dxvShift.y != 0.0f)
+			MoveY(d3dxvShift);
 	}
 }
 
 
-void  CPlayer::JumpTimer(void)
+void  CPlayer::JumpTimer(void)//벡터로 바꾸기
 {
 	if (m_bJump == true)
 	{
-		m_Position.y += JumpHeight;
+		m_Position.y -= 10;
+		mapobject_collsion = false;
+		m_Velocity.y = -40;
+	
+		m_bJump = false;
 	}
 
 }
 
-void CPlayer::Move(const POINT& d3dxvShift, bool bUpdateVelocity)
+void CPlayer::MoveX(const POINT& d3dxvShift)
 {
-	if (bUpdateVelocity)
-	{
-		if (m_Velocity.x <= 5 && m_Velocity.x >= -5)
-			m_Velocity.x += d3dxvShift.x;
-		m_Velocity.y += d3dxvShift.y;
-	}
-	else {
 
+	if (m_Velocity.x <= 5 && m_Velocity.x >= -5)
 		m_Velocity.x += d3dxvShift.x;
-		m_Velocity.y -= d3dxvShift.y;
-	}
 	m_Position.x += m_Velocity.x;
+
+	//초기화
+
+}
+void CPlayer::MoveY(const POINT& d3dxvShift)
+{
+	m_Velocity.y += d3dxvShift.y;
 	m_Position.y += m_Velocity.y;
 	//초기화
 
 }
+void CPlayer::MoveY(const float Yshift) {
+	m_Velocity.y += Yshift;
+	m_Position.y += m_Velocity.y;
 
+}
 void CPlayer::SetBasic(int State)
 {
 	if (State % 2)//2로 나눈 나머지가 1이면 LEFT
@@ -188,75 +186,72 @@ void CPlayer::DrawSprite(HDC hDC, int g_nSpriteCurrent, int x, int y) {
 //보완
 void CPlayer::smashing(int damage, int power, bool smash)
 {
-	
+	POINT HIT = { 0,0 };
 	if (smash == true) {
 		if (hit == false) {
 			StateChangeY();
 			if (m_State % 2 == 1)
-				Vmov.x = Vx(power*(damage / 100));
+				m_Velocity.x = Vx(power*(damage / 100));
 			else
-				Vmov.x = -Vx(power*(damage / 100));
-			Vmov.y = Vy(power*(damage / 100));
+				m_Velocity.x = -Vx(power*(damage / 100));
+			m_Position.y -= 20;
+			m_Velocity.y = -Vy(power*(damage / 50));
 			hit = true;
 		}
 		else {
-			Vmov.x = frameX(Vmov.x, 1);
-
-			if (Vmov.y > Vy(power*(damage / 100))*0.6)
-				Vmov.y = frameY(Vmov.y, 2);
-			else {
-				Vmov.x = 0;
-				Vmov.y = 0;
+			if (m_State % 2 == 1)
+				HIT.x = 1;
+			else
+				HIT.x = -1;
+			HIT.y = 0;
+			if (m_Velocity.y > 2) {
 				hit = false;
-				StateChangeX();
-				StateChangeY();
 				sma = false;
 				if (m_State % 2 == 1)m_State = JUMP_LEFT;
 				else m_State = JUMP_RIGHT;
 			}
 		}
-
-		Move(Vmov, false);
+		MoveX(HIT);
 	}
 	else {
 		if (hit == false) {
 			if (m_State % 2 == 1)
-				Vmov.x = Vx(power*(damage / 100));
+				m_Velocity.x = Vx(power*(damage / 200));
 			else
-				Vmov.x = -Vx(power*(damage / 100));
-			Vmov.y = 0;
+				m_Velocity.x = -Vx(power*(damage / 200));
 			hit = true;
+			cout << m_Velocity.x << endl;
 		}
 		else {
-			Vmov.x = frameX(Vmov.x, 1);
-			if (Vmov.y > Vy(power*(damage / 100)*0.4)) { StateChangeY(); Vmov.y = 0; }
-			else {
-				Vmov.x = 0;
-				Vmov.y = 0;
+			if (m_State % 2 == 1)
+				HIT.x = 1;
+			else
+				HIT.x = -1;
+			HIT.y = 0;
+			if (m_State == UP_LEFT || m_State == UP_RIGHT)
+			{
 				hit = false;
-				StateChangeX();
-				StateChangeY();
 				sma = false;
 			}
 		}
-		Move(Vmov, false);
+		MoveX(HIT);
 	}
 
 }
 //중력 추가
 void CPlayer::gravity(void) {
-	static POINT Vmov = { 0,0 };
+	POINT gravity = { 0,3 };
 	if (mapobject_collsion == false)
 	{
-		if (Vmov.y > -3)
-			Vmov.y = frameY(Vmov.y, 1);
+		if (m_Velocity.y < 20)
+			MoveY(gravity);
+		else
+			MoveY(0.0f);
 	}
 	else {
 		JumpCount = 0;
 		StateChangeY();
-		Vmov.y = 0;
 	}
-	Move(Vmov, false);
 }
 //킥추가
 void CPlayer::defance(CPlayer **other, int player_num)
@@ -404,13 +399,13 @@ void CPlayer::attack(CPlayer **other, int player_num) {
 					if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
 						other[i]->attacker_num = myindex;
 						other[i]->impact = true;
-						
+
 						if (other[i]->GetStatus() == DEFENSE_LEFT || other[i]->GetStatus() == DEFENSE_RIGHT)
 							damage_num += 3;
 						else
 							damage_num += 8;
 						gage += 6;
-					
+
 					}
 					break;
 				case KICK_RIGHT:
@@ -459,5 +454,188 @@ void CPlayer::Playercollision(CPlayer **other, int player_num) {
 					else
 						m_Position.x -= 30;
 		}
+	}
+}
+void CPlayer::KeyState(CCamera& cam,int state) {
+	if(state==3){
+
+		static bool smash = false;
+		static bool attack = false;
+		static bool jump = false;
+
+		DWORD dwDirection = 0;
+		if (GetAsyncKeyState(VK_LEFT))
+		{
+			DIR = 1;
+			dwDirection |= DIR_LEFT;
+
+			if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+			{
+
+			}
+			else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+				GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+			{
+
+			}
+			else
+			{
+
+				if (mapobject_collsion == true)
+					SetStatus(MOVE_LEFT);
+				else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+				{
+
+				}
+				else
+					SetStatus(JUMP_LEFT);
+			}
+
+
+		}
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+			DIR = 2;
+			dwDirection |= DIR_RIGHT;
+			if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+			{
+			}
+
+			else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+				GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+			{
+
+			}
+
+			else
+			{
+				if (mapobject_collsion == true)
+					SetStatus(MOVE_RIGHT);
+				else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+				{
+
+				}
+				else
+					SetStatus(JUMP_RIGHT);
+			}
+		}
+
+
+		//	//점프시 
+
+		if (GetAsyncKeyState('D'))
+		{
+			if (jump == false) {
+				
+				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+					return;
+				if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+				{
+					return;
+
+				}
+
+
+				else
+				{
+
+					if (m_bJump == false)
+					{
+						if (JumpCount != 2) {
+							charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+							m_bJump = true;
+					
+						
+							JumpTimer();
+							if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
+								SetStatus(JUMP_RIGHT);
+							else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
+								SetStatus(JUMP_LEFT);
+							++JumpCount;
+						}
+
+
+
+					}
+				}
+			}
+			jump = true;
+		}
+		else
+			jump = false;
+		if (GetAsyncKeyState('S'))
+		{
+			if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
+				if (getSmashpoint() > 0)
+				{
+					if (GetStatus() % 2 == 0)
+					{
+						SetStatus(HATTACK_RIGHT);
+					}
+					if (GetStatus() % 2 == 1)
+					{
+						SetStatus(HATTACK_LEFT);
+					}
+					smashsub();
+
+				}
+			}
+			smash = true;
+		}
+		else smash = false;
+		if (GetAsyncKeyState('A'))
+		{
+			if (attack == false) {
+				if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
+				{
+					SetStatus(ATTACK1_RIGHT);
+				}
+				else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
+				{
+					SetStatus(ATTACK1_LEFT);
+				}
+
+				else if (m_State == ATTACK1_RIGHT)
+				{
+					n_AttackCount = 2;
+				}
+				else if (m_State == ATTACK1_LEFT)
+				{
+					n_AttackCount = 2;
+				}
+
+				//점프중 공격시 발차기 
+				else if (GetStatus() == JUMP_LEFT)
+				{
+					SetStatus(KICK_LEFT);
+				}
+				else if (GetStatus() == JUMP_RIGHT)
+				{
+					SetStatus(KICK_RIGHT);
+				}
+			}
+			attack = true;
+		}
+		else attack = false;
+		//막기
+		if (GetAsyncKeyState('W'))
+		{
+			if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
+			{
+				SetStatus(DEFENSE_RIGHT);
+			}
+			else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT || GetStatus() == DEFENSE_LEFT)
+			{
+				SetStatus(DEFENSE_LEFT);
+			}
+		}
+		if (dwDirection)
+		{
+			Move(dwDirection, 2.0f);
+			cam.realsetPos(GetPosition().x);
+		}
+		FrameEnd = false;
+
 	}
 }
