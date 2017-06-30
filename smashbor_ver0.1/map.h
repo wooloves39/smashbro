@@ -213,12 +213,7 @@ public:
 	void release() {
 		delete[] tiles;
 		background.Destroy();
-		//delete[] mapSystem;
-//		delete[] mapSound;
+
 	}
 	~map();
 };
-
-//if (m_Player[nowPlayer]->down == true) {
-//	m_Player[nowPlayer]->down = false;
-//}

@@ -11,14 +11,14 @@ CPlayer::CPlayer(int nStatus)
 	m_dirRight.x = 1.0f;
 	m_dirRight.y = 0.0f;
 
-	
-	
+
+
 	n_AttackCount = 1;
 
 	m_BeforeState = BASIC_RIGHT;
 	m_State = BASIC_RIGHT;
 
-	
+
 	System_Create(&charSystem);
 	charSystem->init(5, FMOD_INIT_NORMAL, NULL);
 
@@ -58,7 +58,7 @@ void CPlayer::SetStatus(int state)
 		default:
 			break;
 		}
-			StateChangeX();
+		StateChangeX();
 		//StateChangeY();
 	}
 }
@@ -88,7 +88,7 @@ void CPlayer::Move(DWORD dwDirection, float fDistance)
 		{
 			d3dxvShift.x -= m_dirRight.x * fDistance;
 		}
-		
+
 		if (d3dxvShift.x != 0.0f)
 			MoveX(d3dxvShift);
 		if (d3dxvShift.y != 0.0f)
@@ -104,7 +104,7 @@ void  CPlayer::JumpTimer(void)//벡터로 바꾸기
 		m_Position.y -= 10;
 		mapobject_collsion = false;
 		m_Velocity.y = -40;
-	
+
 		m_bJump = false;
 	}
 
@@ -220,7 +220,6 @@ void CPlayer::smashing(int damage, int power, bool smash)
 			else
 				m_Velocity.x = -Vx(power*(damage / 200));
 			hit = true;
-			cout << m_Velocity.x << endl;
 		}
 		else {
 			if (m_State % 2 == 1)
@@ -257,93 +256,124 @@ void CPlayer::gravity(void) {
 void CPlayer::defance(CPlayer **other, int player_num)
 {
 	POINT other_POS;
-	if (GetStatus() != 14 && GetStatus() != 15) {
-		if (impact_de == true) {
-			attack_SpriteCurrent = other[attacker_num]->Get_SPcurrent();
 
-			if (attack_SpriteCurrent == attack_SpriteCount || other[attacker_num]->GetStatus() < 6)
-			{
-				impact_de = false;
-				impact = false;
-			}
+	if (impact_de == true) {
+		attack_SpriteCurrent = other[attacker_num]->Get_SPcurrent();
+
+		if (attack_SpriteCurrent == attack_SpriteCount || other[attacker_num]->GetStatus() < 6)
+		{
+			impact_de = false;
+			impact = false;
 		}
-		else {
-			for (int i = 0; i < player_num; ++i) {
-				other_POS.x = other[i]->GetPosition().x;
-				other_POS.y = other[i]->GetPosition().y;
-				if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
-				else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))//버튼 한번당 한번만 적용되게 만들고 싶다
-				{
-					switch (other[i]->GetStatus())
-					{
-					case HATTACK_RIGHT:
-						if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
+	}
+	else {
+		for (int i = 0; i < player_num; ++i) {
+			other_POS.x = other[i]->GetPosition().x;
+			other_POS.y = other[i]->GetPosition().y;
+			if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
+			else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))//버튼 한번당 한번만 적용되게 만들고 싶다
+			{
 
+				switch (other[i]->GetStatus())
+				{
+				case HATTACK_RIGHT:
+					if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
+						gage += 4;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						attacker_num = i;
+						impact_de = true;
+						if (GetStatus() == 15) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
 							sma = true;
-							attacker_num = i;
 							SetStatus(FLY_LEFT);
-							gage += 4;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
 						}
-						break;
-					case HATTACK_LEFT:
-						if (m_Position.x + 100 > other_POS.x&&m_Position.x < other_POS.x) {
-							sma = true;
-							attacker_num = i;
-							SetStatus(FLY_RIGHT);
-							gage += 4;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
-						}
-						break;
-					case ATTACK1_RIGHT:
-						if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
-							sma = true;
-							attacker_num = i;
-							SetStatus(DYE_LEFT);
-							gage += 2;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
-						}
-						break;
-					case ATTACK1_LEFT:
-						if (m_Position.x + 80 > other_POS.x&&m_Position.x < other_POS.x) {
-							sma = true;
-							attacker_num = i;
-							SetStatus(DYE_RIGHT);
-							gage += 2;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
-						}
-						break;
-					case KICK_RIGHT:
-						if (m_Position.x - 90 < other_POS.x&&m_Position.x > other_POS.x) {
-							sma = true;
-							attacker_num = i;
-							SetStatus(DYE_LEFT);
-							gage += 2;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
-						}
-						break;
-					case KICK_LEFT:
-						if (m_Position.x + 90 > other_POS.x&&m_Position.x < other_POS.x) {
-							sma = true;
-							attacker_num = i;
-							SetStatus(DYE_RIGHT);
-							gage += 2;
-							attack_SpriteCount = other[attacker_num]->Get_SPcount();
-							impact_de = true;
-						}
-						break;
-					default:
-						break;
 					}
+					break;
+				case HATTACK_LEFT:
+					if (m_Position.x + 100 > other_POS.x&&m_Position.x < other_POS.x) {
+						attacker_num = i;
+						gage += 4;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						impact_de = true;
+						if (GetStatus() == 14) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
+							sma = true;
+							SetStatus(FLY_RIGHT);
+						}
+					}
+					break;
+				case ATTACK1_RIGHT:
+					if (m_Position.x - 80 < other_POS.x&&m_Position.x > other_POS.x) {
+						attacker_num = i;
+						gage += 2;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						impact_de = true;
+						if (GetStatus() == 15) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
+							sma = true;
+							SetStatus(DYE_LEFT);
+						}
+					}
+					break;
+				case ATTACK1_LEFT:
+					if (m_Position.x + 80 > other_POS.x&&m_Position.x < other_POS.x) {
+						attacker_num = i;
+						gage += 2;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						impact_de = true;
+						if (GetStatus() == 14) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
+							sma = true;
+							SetStatus(DYE_RIGHT);
+						}
+					}
+					break;
+				case KICK_RIGHT:
+					if (m_Position.x - 90 < other_POS.x&&m_Position.x > other_POS.x) {
+						attacker_num = i;
+						gage += 2;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						impact_de = true;
+						if (GetStatus() == 15) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
+							sma = true;
+							SetStatus(DYE_LEFT);
+						}
+					}
+					break;
+				case KICK_LEFT:
+					if (m_Position.x + 90 > other_POS.x&&m_Position.x < other_POS.x) {
+						attacker_num = i;	
+						gage += 2;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						impact_de = true;
+						if (GetStatus() == 14) {
+							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
+						}
+						else {
+							sma = true;
+							SetStatus(DYE_RIGHT);
+						}
+					}
+					break;
+				default:
+					break;
 				}
 			}
 		}
+
 	}
+
 }
 //킥추가
 void CPlayer::attack(CPlayer **other, int player_num) {
@@ -456,8 +486,8 @@ void CPlayer::Playercollision(CPlayer **other, int player_num) {
 		}
 	}
 }
-void CPlayer::KeyState(CCamera& cam,int state) {
-	if(state==3){
+void CPlayer::KeyState(CCamera& cam, int state) {
+	if (state == 3) {
 
 		static bool smash = false;
 		static bool attack = false;
@@ -526,7 +556,7 @@ void CPlayer::KeyState(CCamera& cam,int state) {
 		if (GetAsyncKeyState('D'))
 		{
 			if (jump == false) {
-				
+
 				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
 					return;
 				if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
@@ -545,8 +575,8 @@ void CPlayer::KeyState(CCamera& cam,int state) {
 						if (JumpCount != 2) {
 							charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
 							m_bJump = true;
-					
-						
+
+
 							JumpTimer();
 							if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
 								SetStatus(JUMP_RIGHT);
@@ -629,6 +659,7 @@ void CPlayer::KeyState(CCamera& cam,int state) {
 			{
 				SetStatus(DEFENSE_LEFT);
 			}
+
 		}
 		if (dwDirection)
 		{

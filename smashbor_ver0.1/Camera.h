@@ -24,8 +24,8 @@ public:
 		}
 	}
 	void add() {
-		cout << realpos.x - pos.x << endl;
-		
+	
+
 			if ((realpos.x != pos.x))
 			pos.x +=(realpos.x-pos.x)/20;
 	/*	else if((realpos.x < pos.x))
