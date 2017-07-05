@@ -45,7 +45,7 @@ public:
 	
 	System*	charSystem;
 	Channel* pChannel;
-	Sound* charSound[4];
+	Sound* charSound[6];
 	int JumpCount = 0;
 
 public:
@@ -101,7 +101,7 @@ public:
 //----------- FUNCTION	DEFINE -------------//
 
 public:
-	void KeyState(CCamera& cam,int state);
+	void KeyState(CCamera& cam,int state,int mode=1,int player=1);
 	int getVelocity() { return m_Velocity.x; }
 	int getDamege_num() { return damage_num; }
 	void printdamege() {  wsprintf(damage, TEXT("%d"), damage_num); }//데미지 갱신 함수 데미지는 플레이 도중 갱신된다.

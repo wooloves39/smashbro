@@ -6,13 +6,21 @@ class CCamera
 private:
 	POINT pos;
 	POINT realpos;
+	int mode;
 public:
+	void setCam(int game_mode) {
+		mode = game_mode;
+	}
 	void setPos(int x) { 
 		if (x<= -700 || x >= 700);
 		else {
 			pos.x = x*(1280 / 940) - 640; pos.y = 0;
 			realpos.x = x*(1280 / 940) - 640; realpos.y = 0;
 		}
+	}
+	void setPos(int x1, int x2) {
+		pos.x = ((x1+x2)/2)*(1280 / 940) - 640; pos.y = 0;
+		realpos.x = ((x1 + x2) / 2)*(1280 / 940) - 640; realpos.y = 0;
 	}
 	POINT getPos() {
 		return pos;
@@ -23,14 +31,13 @@ public:
 			realpos.x = x*(1280 / 940) - 640; realpos.y = 0;
 		}
 	}
+	void realsetPos(int x1,int x2) {
+			realpos.x = ((x1+x2)/2)*(1280 / 940) - 640; realpos.y = 0;
+		}
 	void add() {
-	
-
 			if ((realpos.x != pos.x))
 			pos.x +=(realpos.x-pos.x)/20;
-	/*	else if((realpos.x < pos.x))
-			pos.x += realpos.x / (abs(realpos.x));
-	*/}
+	}
 
 	CCamera() {};
 	~CCamera() {};

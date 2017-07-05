@@ -18,11 +18,12 @@ enum DIRECTION_P
 CImage Title;
 CImage Background;
 CImage Choice_map[6];
-CImage Choice_cha[3];
+CImage Choice_cha[4];
 CImage Ending;
 CImage Rankstate;
 CImage mapEX[6];
 POINT sel;
+POINT sel2;
 System*	pSystem;
 Sound* stateSound[4];
 Sound* choiceSound;
@@ -31,7 +32,7 @@ float stateVolume = 0.2f;
 Channel*		pChannel[2];
 bool	GameReady = false;
 static UCHAR pKeyBuffer[256];
-
+int mode;//1피냐 2피냐
 int PlayTime = 99;//플레이 타임
 char Playtime_t[3];
 //-----Player추가 
@@ -43,6 +44,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 map m;
 CCamera cam;
 int map_stage;
+int map_stage2;
 CImage UI[3];
 CImage demage_UI;
 void Timer(void);
@@ -127,8 +129,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 	while (GetMessage(&Message, 0, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
-		if (m_Player != nullptr)
-			m_Player[0]->KeyState(cam,state);
+		if (m_Player != nullptr) {
+			if (mode == 2) {
+				m_Player[0]->KeyState(cam, state, mode,1);
+				m_Player[1]->KeyState(cam, state,mode, 2);
+			}
+			else
+			m_Player[0]->KeyState(cam, state,mode);
+		}
 	}
 	return Message.wParam;
 }
@@ -422,7 +430,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	static HFONT TimeFont = CreateFont(70, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));
 	static HFONT UIFont = CreateFont(15, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));//문자체
 
-	static HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0));
+	static HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0)),hBrush2=CreateSolidBrush(RGB(0,255,0));
 	static RECT rectView;
 	static int stage_view = 0;
 	DWORD dwDirection = 0;
@@ -435,6 +443,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		Choice_cha[0].Load(TEXT("sub_image\\choice1.bmp"));
 		Choice_cha[1].Load(TEXT("sub_image\\choice2.bmp"));
 		Choice_cha[2].Load(TEXT("sub_image\\choice3.bmp"));
+		Choice_cha[3].Load(TEXT("sub_image\\choice4.bmp"));
 		Ending.Load(TEXT("sub_image\\end.bmp"));
 		Background.Load(TEXT("sub_image\\background.bmp"));
 		mapEX[0].Load(TEXT("map\\map1\\map1.bmp"));
@@ -453,7 +462,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[title], false, &pChannel[0]);
 
 		pChannel[1]->setVolume(0.5);
-
+		sel.x = 330;
+		sel.y = 530;
 
 		wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 
@@ -469,113 +479,309 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		switch (state)
 		{
-		case title: {
-			state = cho_map;
-			pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
-			sel.x = 140;
-			sel.y = 650;
-			map_stage = 1;
-			pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-			break; }
-		case cho_map:
+		case title:
+		{
 			switch (wParam)
 			{
-			case VK_LEFT:
-				pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-				sel.x -= 200;
-				if (sel.x < 0)
-					sel.x = 140 + 200 * 5;
-				map_stage = ((sel.x - 140) / 200) + 1;
-				if (map_stage == 6)
-					SetTimer(hWnd, 1, 150, NULL);
-				else
-					KillTimer(hWnd, 1);
+			case VK_DOWN:
+				sel.y += 80;
+				if (sel.y > 620)
+					sel.y = 530;
 				break;
-
-			case VK_RIGHT:
-				pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-				sel.x += 200;
-				if (sel.x > 140 + 200 * 5)
-					sel.x = 140;
-				map_stage = ((sel.x - 140) / 200) + 1;
-				if (map_stage == 6)
-					SetTimer(hWnd, 1, 150, NULL);
-				else
-					KillTimer(hWnd, 1);
+			case VK_UP:
+				sel.y -= 80;
+				if (sel.y < 530)
+					sel.y = 610;
 				break;
 			case 'A':
-			{
-				state = cho_cha;
-				map_stage = ((sel.x - 140) / 200) + 1;
-				if (map_stage == 6)
-					map_stage = rand() % 5 + 1;
-				m.load(map_stage, rectView);
-				sel.x = 100 + 125 + 50;
-				sel.y = 175 + 120 + 50;
-				nowPlayer = MARIO;
-				pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
-
-				KillTimer(hWnd, 1);
-
+			case 'S':
+				if (sel.y < 550)mode = 1;
+				else mode = 2;
+				cout << mode << endl;
+				state = cho_map;
+				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
+				sel.x = 140;
+				sel.y = 650;
+				if (mode == 2)
+				{
+					map_stage2 = 10;
+					sel2.x = 140 + 200 * 5;
+					sel2.y = 650;
+				}
+				map_stage = 1;
+				pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+				break;
+			default:
 				break;
 			}
+		}
+		break;
+		case cho_map:
+			if (mode == 1) {
+				switch (wParam)
+				{
+				case VK_LEFT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x -= 200;
+					if (sel.x < 0)
+						sel.x = 140 + 200 * 5;
+					map_stage = ((sel.x - 140) / 200) + 1;
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+
+				case VK_RIGHT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x += 200;
+
+					if (sel.x > 140 + 200 * 5)
+						sel.x = 140;
+					map_stage = ((sel.x - 140) / 200) + 1;
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+				case 'A':
+				{
+					state = cho_cha;
+					map_stage = ((sel.x - 140) / 200) + 1;
+					if (map_stage == 6)
+						map_stage = rand() % 5 + 1;
+					m.load(map_stage, rectView);
+					sel.x = 50 + 125;
+					sel.y = 175 + 120 + 25;
+					nowPlayer = MARIO;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+
+					KillTimer(hWnd, 1);
+
+					break;
+				}
+				}
+			}
+			else {
+				switch (wParam)
+				{
+				case 'A':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x -= 200;
+					if (sel.x < 0)
+						sel.x = 140 + 200 * 5;
+					map_stage = ((sel.x - 140) / 200) + 1;
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+				case 'D':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x += 200;
+					if (sel.x > 140 + 200 * 5)
+						sel.x = 140;
+					map_stage = ((sel.x - 140) / 200) + 1;
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+				case 'F':
+				
+					map_stage = ((sel.x - 140) / 200) + 1;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+					break;
+				case VK_LEFT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel2.x -= 200;
+					if (sel2.x < 0)
+						sel2.x = 140 + 200 * 5;
+					
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+
+				case VK_RIGHT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel2.x += 200;
+					if (sel2.x > 140 + 200 * 5)
+						sel2.x = 140;
+					
+					if (map_stage == 6)
+						SetTimer(hWnd, 1, 150, NULL);
+					else
+						KillTimer(hWnd, 1);
+					break;
+				case VK_NUMPAD4:
+				{
+				
+					map_stage2 = ((sel2.x - 140) / 200) + 1;
+					cout << map_stage2 << endl;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+
+					KillTimer(hWnd, 1);
+
+					break;
+				}
+				default:
+					break;
+				}
+				if (map_stage == map_stage2&&wParam=='F') {
+					state = cho_cha;
+					if (map_stage == 6)
+						map_stage = rand() % 5 + 1;
+					m.load(map_stage, rectView);
+					sel.x = 50 + 125;
+					sel.y = 175 + 120 + 25;
+					sel2.y = 175 + 120 + 25;
+					sel2.x = 300 * 3 + 50 + 125;
+					nowPlayer = MARIO;
+					
+
+					KillTimer(hWnd, 1);
+				}
 			}
 			break;
 		case cho_cha:
-			switch (wParam)
-			{
-			case VK_LEFT:
-				pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-				sel.x -= 360;
-				--nowPlayer;
-				if (sel.x < 0) {
-					sel.x = 275 + 360 * 2;
-					nowPlayer = 2;
-				}
-				break;
+			if (mode == 1) {
+				switch (wParam)
+				{
+				case VK_LEFT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x -= 250 + 50;
+					--nowPlayer;
+					if (sel.x < 0) {
+						sel.x = 300 * 3 + 50 + 125;
+						nowPlayer = 3;
+					}
+					break;
 
-			case VK_RIGHT:
-				pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-				sel.x += 360;
-				++nowPlayer;
-				if (sel.x > 275 + 360 * 2) {
+				case VK_RIGHT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x += 300;
+					++nowPlayer;
+					if (sel.x > 1200) {
+						sel.x = 175;
+						nowPlayer = 0;
+					}
+					break;
+				case 'A':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+					state = play;
 					sel.x = 100 + 125 + 50;
-					nowPlayer = 0;
+					sel.y = 175 + 120 + 50;
+					SetTimer(hWnd, 5, 1000, NULL);
+
+					pChannel[0]->stop();
+					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
+					//--------PLAYER SET--------//
+
+					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
+					BuildPlayer(nowPlayer);
+
+					cam.setPos(m_Player[0]->GetPosition().x);
+					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
+					SetTimer(hWnd, 0, 100, NULL);
+					SetTimer(hWnd, 6, 1000, NULL);
 				}
 				break;
-			case 'A':
-				pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
-				state = play;
-				sel.x = 100 + 125 + 50;
-				sel.y = 175 + 120 + 50;
-				SetTimer(hWnd, 5, 1000, NULL);
 
-				pChannel[0]->stop();
-				m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
-				//--------PLAYER SET--------//
-
-				nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-				BuildPlayer(nowPlayer);
-				
-				cam.setPos(m_Player[0]->GetPosition().x);
-				wsprintf(Playtime_t, TEXT("%d"), PlayTime);
-				SetTimer(hWnd, 0, 100, NULL);
-				SetTimer(hWnd, 6, 1000, NULL);
 			}
-			break;
+			else {
+				switch (wParam)
+				{
+				case 'A':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x -= 250 + 50;
+					--nowPlayer;
+					if (sel.x < 0) {
+						sel.x = 300 * 3 + 50 + 125;
+						nowPlayer = 3;
+					}
+					break;
 
+				case 'D':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel.x += 300;
+					++nowPlayer;
+					if (sel.x > 1200) {
+						sel.x = 175;
+						nowPlayer = 0;
+					}
+					break;
+				case 'F':
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+					state = play;
+					sel.x = 100 + 125 + 50;
+					sel.y = 175 + 120 + 50;
+					SetTimer(hWnd, 5, 1000, NULL);
 
+					pChannel[0]->stop();
+					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
+					//--------PLAYER SET--------//
+
+					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
+					BuildPlayer(nowPlayer);
+
+					cam.setPos(m_Player[0]->GetPosition().x);
+					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
+					SetTimer(hWnd, 0, 100, NULL);
+					SetTimer(hWnd, 6, 1000, NULL);
+				case VK_LEFT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel2.x -= 250 + 50;
+				//	--nowPlayer;
+					if (sel2.x < 0) {
+						sel2.x = 300 * 3 + 50 + 125;
+					//	nowPlayer = 3;
+					}
+					break;
+				case VK_RIGHT:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
+					sel2.x += 300;
+					//++nowPlayer;
+					if (sel2.x > 1200) {
+						sel2.x = 175;
+					//	nowPlayer = 0;
+					}
+					break;
+				case VK_NUMPAD4:
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
+					state = play;
+					sel2.x = 100 + 125 + 50;
+					sel2.y = 175 + 120 + 50;
+					SetTimer(hWnd, 5, 1000, NULL);
+
+					pChannel[0]->stop();
+					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
+					//--------PLAYER SET--------//
+
+					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
+					BuildPlayer(nowPlayer);
+
+					cam.setPos(m_Player[0]->GetPosition().x);
+					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
+					SetTimer(hWnd, 0, 100, NULL);
+					SetTimer(hWnd, 6, 1000, NULL);
+					break;
+
+				}
+				break;
+			}
 		case play:
 			*pKeyBuffer = NULL;
 			dwDirection = 0;
 			GameReady = true;
-			if (GetKeyboardState(pKeyBuffer))
-			{
-				SetTimer(hWnd, 2, 16, NULL);//점프타이머
+		if (GetKeyboardState(pKeyBuffer))
+		{
+			SetTimer(hWnd, 2, 16, NULL);//점프타이머
 
-											//------PLAYER CHANGE------//
+										//------PLAYER CHANGE------//
 
-			}
+		}
 			break;
 		case ranking:
 			switch (wParam) {
@@ -584,7 +790,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
 				reset();
 				KillTimer(hWnd, 0);
-			
+
 				break;
 			case 'S': {
 				state = ending;
@@ -610,31 +816,97 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		switch (state)
 		{
 		case play:
-			if (m_Player[0]->GetStatus() == MOVE_RIGHT)
-			{
-				m_Player[0]->SetStatus(BASIC_RIGHT);
-				break;
+			if (mode == 1) {
+				if (m_Player[0]->GetStatus() == MOVE_RIGHT)
+				{
+					m_Player[0]->SetStatus(BASIC_RIGHT);
+					break;
+				}
+				if (m_Player[0]->GetStatus() == MOVE_LEFT)
+				{
+					m_Player[0]->SetStatus(BASIC_LEFT);
+					break;
+				}
+				if (m_Player[0]->GetStatus() == DEFENSE_RIGHT)
+				{
+					m_Player[0]->SetStatus(BASIC_RIGHT);
+					break;
+				}
+				if (m_Player[0]->GetStatus() == DEFENSE_LEFT)
+				{
+					m_Player[0]->SetStatus(BASIC_LEFT);
+					break;
+				}
 			}
-			if (m_Player[0]->GetStatus() == MOVE_LEFT)
-			{
-				m_Player[0]->SetStatus(BASIC_LEFT);
-				break;
+			else {
+				switch (wParam)
+				{case 'A':
+				case 'D':
+				case 'F':
+				case 'G':
+				case 'H':
+				case 'T':
+					if (m_Player[0]->GetStatus() == MOVE_RIGHT)
+					{
+						m_Player[0]->SetStatus(BASIC_RIGHT);
+						break;
+					}
+					if (m_Player[0]->GetStatus() == MOVE_LEFT)
+					{
+						m_Player[0]->SetStatus(BASIC_LEFT);
+						break;
+					}
+					if (m_Player[0]->GetStatus() == DEFENSE_RIGHT)
+					{
+						m_Player[0]->SetStatus(BASIC_RIGHT);
+						break;
+					}
+					if (m_Player[0]->GetStatus() == DEFENSE_LEFT)
+					{
+						m_Player[0]->SetStatus(BASIC_LEFT);
+						break;
+					}
+					break;
+				case VK_LEFT:
+				case VK_RIGHT:
+				case VK_NUMPAD4:
+				case VK_NUMPAD5:
+				case VK_NUMPAD6:
+				case VK_NUMPAD8:
+					if (m_Player[1]->GetStatus() == MOVE_RIGHT)
+					{
+						m_Player[1]->SetStatus(BASIC_RIGHT);
+						break;
+					}
+					if (m_Player[1]->GetStatus() == MOVE_LEFT)
+					{
+						m_Player[1]->SetStatus(BASIC_LEFT);
+						break;
+					}
+					if (m_Player[1]->GetStatus() == DEFENSE_RIGHT)
+					{
+						m_Player[1]->SetStatus(BASIC_RIGHT);
+						break;
+					}
+					if (m_Player[1]->GetStatus() == DEFENSE_LEFT)
+					{
+						m_Player[1]->SetStatus(BASIC_LEFT);
+						break;
+					}
+					break;
+				default:
+					break;
+				}
 			}
-			if (m_Player[0]->GetStatus() == DEFENSE_RIGHT)
-			{
-				m_Player[0]->SetStatus(BASIC_RIGHT);
-				break;
-			}
-			if (m_Player[0]->GetStatus() == DEFENSE_LEFT)
-			{
-				m_Player[0]->SetStatus(BASIC_LEFT);
-				break;
-			}
+						
 		}
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
 	break;
-
+	case WM_LBUTTONDOWN:
+	{cout << LOWORD(lParam) << endl;
+	cout << HIWORD(lParam) << endl;
+	}
 	case WM_TIMER:
 	{
 		if (state == play) //점프 고치면 수정해야함
@@ -693,7 +965,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 			if (PlayTime == 0) {
 				setranking();
-				
+
 				KillTimer(hWnd, 5);
 				KillTimer(hWnd, 6);
 			}
@@ -722,12 +994,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		{
 		case title:
 			Title.Draw(memDC, 0, 0, rectView.right, rectView.bottom);
+			RECT selectRC;
+
+			selectRC.left = -210 + sel.x;
+			selectRC.top = -40 + sel.y;
+			selectRC.right = 210 + sel.x;
+			selectRC.bottom = 40 + sel.y;
+			FrameRect(memDC, &selectRC, hBrush);
 			break;
 		case cho_map: {
 			RECT rc;
 			RECT rc2;
 			RECT selectRC;
-
+			
 			selectRC.left = -80 + sel.x;
 			selectRC.top = -45 + sel.y;
 			selectRC.right = 80 + sel.x;
@@ -754,18 +1033,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				mapEX[i].Draw(memDC, (i)*(40 + 160) + rc.left + 80 + 60, 650 + rc.top, 160, 90, 0, 0, 800, 450);
 				//40 사각형간의 거리, 160 사각형의 크기,80 첫 사각형을 원점에 맞추는 것, 60,양쪽 보정
 			}
+			
+			if (mode == 2) {
+				RECT selectRC2;
+				selectRC2.left = -80 + sel2.x;
+				selectRC2.top = -45 + sel2.y;
+				selectRC2.right = 80 + sel2.x;
+				selectRC2.bottom = 45 + sel2.y;
+				FrameRect(memDC, &selectRC2, hBrush2);
+			}
 			FrameRect(memDC, &selectRC, hBrush);
 			break; }
 		case cho_cha: {
 			RECT selectRC;
 			Background.Draw(memDC, 0, 0);
-			for (int i = 0; i < 3; ++i) {
-				Choice_cha[i].Draw(memDC, 100 + i*(350 + 10), 120, 350, 450);
+			for (int i = 0; i < 4; ++i) {
+				Choice_cha[i].Draw(memDC, 50 + i*(250 + 50), 120, 250, 400);
 			}
-			selectRC.left = -175 + sel.x;
-			selectRC.top = -225 + sel.y;
-			selectRC.right = 175 + sel.x;
-			selectRC.bottom = 225 + sel.y;
+			selectRC.left = -125 + sel.x;
+			selectRC.top = -200 + sel.y;
+			selectRC.right = 125 + sel.x;
+			selectRC.bottom = 200 + sel.y;
+			if (mode == 2) {
+				RECT selectRC2;
+				selectRC2.left = -125 + sel2.x;
+				selectRC2.top = -200 + sel2.y;
+				selectRC2.right = 125 + sel2.x;
+				selectRC2.bottom = 200 + sel2.y;
+				FrameRect(memDC, &selectRC2, hBrush2);
+			}
 			FrameRect(memDC, &selectRC, hBrush);
 			break;
 		}
@@ -778,7 +1074,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 				m_Player[i]->DrawSprite(memDC,
 					m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent, cam);
-				m_Player[i]->UI.TransparentBlt(memDC, 280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(0, 0, 0));
+				m_Player[i]->UI.TransparentBlt(memDC, 280 + i * 350, 660, 50, 50, 0, 0, 30, 30, RGB(255, 255, 255));
 				demage_UI.TransparentBlt(memDC, 340 + i * 350, 620, 150, 150, 0, 0, 170, 170, RGB(255, 255, 255));
 				SetBkMode(memDC, TRANSPARENT);
 				TextOut(memDC, 400 + i * 350 - 10, 690, TEXT(m_Player[i]->getDamege()), strlen(m_Player[i]->getDamege()));
