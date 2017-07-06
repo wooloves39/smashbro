@@ -131,11 +131,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 		DispatchMessage(&Message);
 		if (m_Player != nullptr) {
 			if (mode == 2) {
-				m_Player[0]->KeyState(cam, state, mode,1);
-				m_Player[1]->KeyState(cam, state,mode, 2);
+				m_Player[0]->KeyState(cam, state, mode, 1);
+				m_Player[1]->KeyState(cam, state, mode, 2);
+				m_Player[2]->KeyState(cam, state);
 			}
-			else
-			m_Player[0]->KeyState(cam, state,mode);
+			else {
+				m_Player[0]->KeyState(cam, state, mode);
+				m_Player[1]->KeyState(cam, state);
+				m_Player[2]->KeyState(cam, state);
+			}
 		}
 	}
 	return Message.wParam;
@@ -143,7 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
 //-----------------------------------------------------------//
 
-void BuildPlayer(int nMyPlayer)
+void BuildPlayer(int nMyPlayer,int mode)
 {
 
 	CPlayer *Mario = new CPlayer(26);
@@ -365,19 +369,34 @@ void BuildPlayer(int nMyPlayer)
 	Luizy->UI.Load("character\\LUIZY\\luizy_UI.bmp");
 	m_Player = new CPlayer*[3];
 	//1. Mario
-	m_Player[0] = new CPlayer(26);
-	m_Player[0]->SetPosition(-200, 300);
-	m_Player[0]->SetStatus(BASIC_RIGHT);	//현재상태 셋팅 
+	if (mode == 1) {
+		m_Player[0] = new CPlayer(26);
+		m_Player[0]->SetPosition(-200, 300);
+		m_Player[0]->SetStatus(BASIC_RIGHT);	//현재상태 셋팅 
 
-	m_Player[1] = new CPlayer(26);
-	m_Player[1]->SetPosition(200, 300);
-	m_Player[1]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
-	m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
+		m_Player[1] = new CAIPlayer(26);
+		m_Player[1]->SetPosition(200, 300);
+		m_Player[1]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
 
-	m_Player[2] = new CPlayer(26);
-	m_Player[2]->SetPosition(0, 300);
-	m_Player[2]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
 
+		m_Player[2] = new CAIPlayer(26);
+		m_Player[2]->SetPosition(0, 300);
+		m_Player[2]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
+	}
+	if (mode == 2) {
+		m_Player[0] = new CPlayer(26);
+		m_Player[0]->SetPosition(-200, 300);
+		m_Player[0]->SetStatus(BASIC_RIGHT);	//현재상태 셋팅 
+
+		m_Player[1] = new CPlayer(26);
+		m_Player[1]->SetPosition(200, 300);
+		m_Player[1]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
+
+
+		m_Player[2] = new CAIPlayer(26);
+		m_Player[2]->SetPosition(0, 300);
+		m_Player[2]->SetStatus(BASIC_LEFT);	//현재상태 셋팅 
+	}
 	if (nMyPlayer == 0) {
 		m_Player[0]->SetImage(Mario->GetImage());
 		m_Player[0]->rank_state = Mario->rank_state;
@@ -388,8 +407,7 @@ void BuildPlayer(int nMyPlayer)
 		m_Player[2]->SetImage(Luizy->GetImage());
 		m_Player[2]->rank_state = Luizy->rank_state;
 		m_Player[2]->UI = Luizy->UI;
-		m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
-		m_Player[2]->GetEnemyPlayer(m_Player[0], m_Player[1]);
+	
 	}
 	if (nMyPlayer == 1) {
 		m_Player[1]->SetImage(Mario->GetImage());
@@ -401,8 +419,7 @@ void BuildPlayer(int nMyPlayer)
 		m_Player[0]->SetImage(Luizy->GetImage());
 		m_Player[0]->rank_state = Luizy->rank_state;
 		m_Player[0]->UI = Luizy->UI;
-		m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
-		m_Player[2]->GetEnemyPlayer(m_Player[0], m_Player[1]);
+		
 	}
 
 	if (nMyPlayer == 2) {
@@ -416,8 +433,6 @@ void BuildPlayer(int nMyPlayer)
 		m_Player[2]->rank_state = Luizy->rank_state;
 		m_Player[2]->UI = Luizy->UI;
 
-		m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
-		m_Player[2]->GetEnemyPlayer(m_Player[0], m_Player[1]);
 	}
 }
 
@@ -680,12 +695,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer);
+					BuildPlayer(nowPlayer,mode);
 
 					cam.setPos(m_Player[0]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					SetTimer(hWnd, 6, 1000, NULL);
+					
 				}
 				break;
 
@@ -724,12 +739,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer);
+					BuildPlayer(nowPlayer,mode);
 
 					cam.setPos(m_Player[0]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					SetTimer(hWnd, 6, 1000, NULL);
+					
 				case VK_LEFT:
 					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
 					sel2.x -= 250 + 50;
@@ -760,12 +775,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer);
+					BuildPlayer(nowPlayer,mode);
 
 					cam.setPos(m_Player[0]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					SetTimer(hWnd, 6, 1000, NULL);
+					
 					break;
 
 				}
@@ -917,14 +932,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				setranking();
 				count = 0;
 				KillTimer(hWnd, 5);
-				KillTimer(hWnd, 6);
 				break;
 			}
 			count = 0;
 			for (int i = 0; i < nPlayer; ++i)
 			{
+				if (m_Player[i]->AI() == true) {
+					m_Player[i]->distance(m_Player, 3);
+				}
 				m.collision(*m_Player[i]);
-				m_Player[i]->Playercollision(m_Player, nPlayer);
 				m_Player[i]->gravity();
 				m_Player[i]->attack(m_Player, nPlayer);
 				m_Player[i]->defance(m_Player, nPlayer);
@@ -953,12 +969,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 0:
 			Timer();
-			if (state == play) {
-				m_Player[1]->GetEnemyPlayer(m_Player[0], m_Player[2]);
-				m_Player[2]->GetEnemyPlayer(m_Player[1], m_Player[0]);
-				m_Player[1]->CalculateDistanceTimer();
-				m_Player[2]->CalculateDistanceTimer();
-			}
+			
 			break;
 		case 5: {
 			--PlayTime;
@@ -967,18 +978,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				setranking();
 
 				KillTimer(hWnd, 5);
-				KillTimer(hWnd, 6);
+			
 			}
 		}
 				break;
-		case 6:
-
-			for (int i = 0; i < nPlayer; ++i)
-			{
-				m_Player[i]->PlayerAttack();
-			}
-
-			break;
 		}
 		InvalidateRect(hWnd, NULL, FALSE);
 	}

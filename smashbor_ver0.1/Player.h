@@ -24,7 +24,7 @@ public:
 	int smash_point = 3;
 	int gage = 0;
 public:
-	
+
 	Image	*m_ppTexture;
 	UINT attack_SpriteCount;//공격한 플레이어의 전체 인덱스 넘버
 	UINT attack_SpriteCurrent;//공격한 플레이어의 그 시점 인덱스 넘버
@@ -36,13 +36,13 @@ public:
 	DWORD	m_BeforeState;		//과거의상태 
 	int		DIR;
 	int		n_AttackCount;
-	
-	
+
+
 
 	bool	FrameEnd;
 	bool	m_bJump = false;
 
-	
+
 	System*	charSystem;
 	Channel* pChannel;
 	Sound* charSound[6];
@@ -55,17 +55,19 @@ public:
 	UINT Get_SPcurrent() { return m_ppTexture->nSpriteCurrent; }//전체 상태 인덱스 너버
 	void SetStatus(int state);
 	DWORD GetStatus(void) { return m_State; };
-	void SetPosition(float x, float y) { 
-		m_Position.x = x; m_Position.y = y; };
+	void SetPosition(float x, float y) {
+		m_Position.x = x; m_Position.y = y;
+	};
 	void SetTexture(int nIndex, LPCTSTR pCImage, int nSpriteCount);
 	POINT GetPosition() { return m_Position; };
 	void Move(DWORD dwDirection, float fDistance);
 	void MoveX(const POINT& d3dxvShift);
 	void MoveY(const POINT& d3dxvShift);
 	void MoveY(const float Yshift);
-	void StateChangeX(void){m_Velocity.x = 0.0;}
-	void StateChangeY(){
-		m_Velocity.y = 0.0;}
+	void StateChangeX(void) { m_Velocity.x = 0.0; }
+	void StateChangeY() {
+		m_Velocity.y = 0.0;
+	}
 	void DrawSprite(HDC hDC, int g_nSpriteCurrent, CCamera cam);
 	void DrawSprite(HDC hDC, int g_nSpriteCurrent, int x, int y);//ranking state에서 그려지는 것들에 대한 함수
 	void JumpTimer(void);
@@ -74,8 +76,8 @@ public:
 	void Render(HDC hDC, int x, int y, int xsize, int ysize);//ranking state에서 그려지는 것들에 대한 함수
 //-------------- 현우추가 여기서부터 ----------//
 	void SetImage(Image* Image) {
-		m_ppTexture = Image; 
-	
+		m_ppTexture = Image;
+
 	};
 	Image* GetImage(void) { return m_ppTexture; };
 	int damage_num = 100;
@@ -101,10 +103,10 @@ public:
 //----------- FUNCTION	DEFINE -------------//
 
 public:
-	void KeyState(CCamera& cam,int state,int mode=1,int player=1);
+	virtual void KeyState(CCamera& cam, int state, int mode = 1, int player = 1);
 	int getVelocity() { return m_Velocity.x; }
 	int getDamege_num() { return damage_num; }
-	void printdamege() {  wsprintf(damage, TEXT("%d"), damage_num); }//데미지 갱신 함수 데미지는 플레이 도중 갱신된다.
+	void printdamege() { wsprintf(damage, TEXT("%d"), damage_num); }//데미지 갱신 함수 데미지는 플레이 도중 갱신된다.
 	char* getDamege() { return damage; }
 	double Vx(double P) { return sin(45 * RAD)*P; }
 	double Vy(double P) { return cos(45 * RAD)*P; }
@@ -131,18 +133,144 @@ public:
 	}
 	int getgage() { return gage; }
 	virtual void Playercollision(CPlayer **other, int player_num);
-	virtual void GetEnemyPlayer(CPlayer* Enemy1, CPlayer* Enemy2)
-	{}
-	virtual void CalculateDistanceTimer(void) {};
-	virtual void PlayerAttack(void) {};
 	void release() {
-	
+
 		delete[] m_ppTexture;
 		rank_state.Destroy();
 		UI.Destroy();
 	}
-	
+	virtual bool AI() {
+		return false;
+	}
+	virtual void distance(CPlayer **other, int player_num) {}
 };
+class CAIPlayer
+	:public CPlayer
+{
+public:
+	float Distance[2];
+	POINT movVector;
+	bool	Collision;
+	CPlayer* target;
+	bool targeting = false;
+public:
+	
+	CAIPlayer(int nStatus):CPlayer(nStatus) {
+		nTexture = nStatus; // 현재 상태의 개수 
+		m_ppTexture = new Image[nTexture];
+
+		m_Velocity.x = 0.0f;
+		m_Velocity.y = 0.0f;
+
+		m_dirRight.x = 1.0f;
+		m_dirRight.y = 0.0f;
 
 
+
+		n_AttackCount = 1;
+
+		m_BeforeState = BASIC_RIGHT;
+		m_State = BASIC_RIGHT;
+
+
+		System_Create(&charSystem);
+		charSystem->init(6, FMOD_INIT_NORMAL, NULL);
+
+		charSystem->createSound("sound\\imfact\\hit.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[0]);
+		charSystem->createSound("sound\\imfact\\Jump.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[1]);
+		charSystem->createSound("sound\\imfact\\fly.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[2]);
+		charSystem->createSound("sound\\imfact\\Game over.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[3]);
+		charSystem->createSound("sound\\imfact\\bighit.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[4]);
+		charSystem->createSound("sound\\imfact\\defense.wav", FMOD_HARDWARE | FMOD_LOOP_OFF, NULL, &charSound[5]);
+		pChannel->setVolume(0.3);
+	}
+	virtual void KeyState(CCamera& cam, int state, int mode = 1, int player = 1) {
+		if (state == 3) {
+			static bool smash = false;
+			static bool attack = false;
+			static bool jump = false;
+
+			DWORD dwDirection = 0;
+			if (targeting == false)return;
+			if (target->GetPosition().x < GetPosition().x)
+			{
+				DIR = 1;
+				dwDirection |= DIR_LEFT;
+
+				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+				{
+
+				}
+				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+				{
+
+				}
+				else
+				{
+
+					if (mapobject_collsion == true)
+						SetStatus(MOVE_LEFT);
+					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+					{
+
+					}
+					else
+						SetStatus(JUMP_LEFT);
+				}
+
+			}
+			else if (target->GetPosition().x > GetPosition().x) {
+				DIR = 2;
+				dwDirection |= DIR_RIGHT;
+				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+				{
+				}
+
+				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+				{
+
+				}
+
+				else
+				{
+					if (mapobject_collsion == true)
+						SetStatus(MOVE_RIGHT);
+					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+					{
+
+					}
+					else
+						SetStatus(JUMP_RIGHT);
+				}
+			}
+			if (dwDirection)
+			{
+				Move(dwDirection, 2.0f);
+			}
+			FrameEnd = false;
+
+		}
+	}
+	virtual void distance(CPlayer **other, int player_num) {
+		int num = 0;
+		int player[2];
+		for (int i = 0; i < player_num; ++i) {
+			if (other[i]->GetPosition().x != GetPosition().x&&other[i]->GetPosition().y != GetPosition().y) {
+				Distance[num] = sqrt((pow(other[i]->GetPosition().x, 2) + pow(other[i]->GetPosition().y, 2)));
+				player[num] = i;
+				++num;
+			}
+		}
+		if (Distance[0] > Distance[1])
+			target = other[player[0]];
+		else
+			target = other[player[1]];
+		targeting = true;
+	}
+	virtual bool AI() {
+		return true;
+	}
+};
 
