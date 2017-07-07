@@ -154,8 +154,8 @@ public:
 	CPlayer* target;
 	bool targeting = false;
 public:
-	
-	CAIPlayer(int nStatus):CPlayer(nStatus) {
+
+	CAIPlayer(int nStatus) :CPlayer(nStatus) {
 		nTexture = nStatus; // 현재 상태의 개수 
 		m_ppTexture = new Image[nTexture];
 
@@ -186,87 +186,138 @@ public:
 	}
 	virtual void KeyState(CCamera& cam, int state, int mode = 1, int player = 1) {
 		if (state == 3) {
-			static bool smash = false;
-			static bool attack = false;
-			static bool jump = false;
-
-			DWORD dwDirection = 0;
-			if (targeting == false)return;
-			if (target->GetPosition().x < GetPosition().x)
+			if (m_State != FLY_LEFT&& m_State != FLY_RIGHT&& m_State != DYE_LEFT && m_State != DYE_RIGHT && m_State != UP_LEFT && m_State != UP_RIGHT)
 			{
-				DIR = 1;
-				dwDirection |= DIR_LEFT;
+				static bool smash = false;
+				static bool attack = false;
+				static bool jump = false;
 
-				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+				DWORD dwDirection = 0;
+				if (targeting == false)return;
+				if (target->GetPosition().x + 10 < GetPosition().x)
 				{
+					DIR = 1;
+					dwDirection |= DIR_LEFT;
 
-				}
-				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-				{
+					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+					{
 
-				}
-				else
-				{
-
-					if (mapobject_collsion == true)
-						SetStatus(MOVE_LEFT);
-					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+					}
+					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
 					{
 
 					}
 					else
-						SetStatus(JUMP_LEFT);
-				}
+					{
 
-			}
-			else if (target->GetPosition().x > GetPosition().x) {
-				DIR = 2;
-				dwDirection |= DIR_RIGHT;
-				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-				{
-				}
+						if (mapobject_collsion == true)
+							SetStatus(MOVE_LEFT);
+						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+						{
 
-				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-				{
+						}
+						else
+							SetStatus(JUMP_LEFT);
+					}
 
 				}
+				if (target->GetPosition().x - 10 > GetPosition().x) {
+					DIR = 2;
+					dwDirection |= DIR_RIGHT;
+					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+					{
+					}
 
-				else
-				{
-					if (mapobject_collsion == true)
-						SetStatus(MOVE_RIGHT);
-					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
 					{
 
 					}
-					else
-						SetStatus(JUMP_RIGHT);
-				}
-			}
-			if (dwDirection)
-			{
-				Move(dwDirection, 2.0f);
-			}
-			FrameEnd = false;
 
+					else
+					{
+						if (mapobject_collsion == true)
+							SetStatus(MOVE_RIGHT);
+						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+						{
+
+						}
+						else
+							SetStatus(JUMP_RIGHT);
+					}
+				}
+				if (target->GetPosition().y + 30 < GetPosition().y&&jump == false) {
+					if (jump == false) {
+
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+							return;
+						if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
+							return;
+
+						}
+
+
+						else
+						{
+
+							if (m_bJump == false)
+							{
+								if (JumpCount != 2) {
+									charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+									m_bJump = true;
+
+
+									JumpTimer();
+									if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
+										SetStatus(JUMP_RIGHT);
+									else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
+										SetStatus(JUMP_LEFT);
+									++JumpCount;
+								}
+
+
+
+							}
+						}
+					}
+					jump = true;
+				}
+				else
+					jump = false;
+				if (dwDirection)
+				{
+					Move(dwDirection, 20.0f);
+				}
+				FrameEnd = false;
+
+			}
 		}
 	}
+	//데미지까지 더하기
+
 	virtual void distance(CPlayer **other, int player_num) {
 		int num = 0;
 		int player[2];
 		for (int i = 0; i < player_num; ++i) {
-			if (other[i]->GetPosition().x != GetPosition().x&&other[i]->GetPosition().y != GetPosition().y) {
-				Distance[num] = sqrt((pow(other[i]->GetPosition().x, 2) + pow(other[i]->GetPosition().y, 2)));
+			if (other[i] == this);
+			else {
+				Distance[num] = sqrt((pow(m_Position.x - other[i]->GetPosition().x, 2) + pow(m_Position.y - other[i]->GetPosition().y, 2)));
 				player[num] = i;
 				++num;
 			}
 		}
-		if (Distance[0] > Distance[1])
+
+		if (Distance[0] < Distance[1] || other[player[1]]->live == false)
 			target = other[player[0]];
 		else
 			target = other[player[1]];
+		if (mapobject_collsion == false) {
+			if (other[player[0]]->mapobject_collsion == true)target = other[player[0]];
+			else if (other[player[1]]->mapobject_collsion == true)target = other[player[1]];
+		}
 		targeting = true;
 	}
 	virtual bool AI() {

@@ -204,7 +204,8 @@ public:
 						player.GetStatus() == FLY_LEFT || player.GetStatus() == FLY_RIGHT) {
 						player.SetStatus(player.GetStatus() % 2 + BASIC_RIGHT);
 					}
-					player.mapobject_collsion = true;
+					player.mapobject_collsion = true;//맵에 안붙어있을때
+
 					return;
 				}
 			}

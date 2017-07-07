@@ -133,12 +133,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 			if (mode == 2) {
 				m_Player[0]->KeyState(cam, state, mode, 1);
 				m_Player[1]->KeyState(cam, state, mode, 2);
-				m_Player[2]->KeyState(cam, state);
+				
 			}
 			else {
 				m_Player[0]->KeyState(cam, state, mode);
-				m_Player[1]->KeyState(cam, state);
-				m_Player[2]->KeyState(cam, state);
 			}
 		}
 	}
@@ -689,7 +687,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel.x = 100 + 125 + 50;
 					sel.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-
+					SetTimer(hWnd, 6, 100, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -733,7 +731,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel.x = 100 + 125 + 50;
 					sel.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-
+					SetTimer(hWnd, 6, 100, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -769,7 +767,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel2.x = 100 + 125 + 50;
 					sel2.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-
+					SetTimer(hWnd, 6, 100, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -941,6 +939,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					m_Player[i]->distance(m_Player, 3);
 				}
 				m.collision(*m_Player[i]);
+			m_Player[i]->Playercollision(m_Player, nPlayer);
 				m_Player[i]->gravity();
 				m_Player[i]->attack(m_Player, nPlayer);
 				m_Player[i]->defance(m_Player, nPlayer);
@@ -982,6 +981,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 				break;
+		case 6: {
+			if (m_Player != nullptr) {
+				if (mode == 2) {
+					m_Player[2]->KeyState(cam, state);
+				}
+				else {
+					m_Player[1]->KeyState(cam, state);
+					m_Player[2]->KeyState(cam, state);
+				}
+			}
+		}
 		}
 		InvalidateRect(hWnd, NULL, FALSE);
 	}

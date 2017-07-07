@@ -486,7 +486,7 @@ void CPlayer::Playercollision(CPlayer **other, int player_num) {
 	{
 		other_POS.x = other[i]->GetPosition().x;
 		other_POS.y = other[i]->GetPosition().y;
-		if (m_Position.x == other_POS.x&&m_Position.y == other_POS.y)continue;
+		if (other[i]==this)continue;
 		else {
 			if ((m_Position.y + 50 > other_POS.y) && (m_Position.y - 50 < other_POS.y))
 				if ((m_Position.x + 30 > other_POS.x) && (m_Position.x - 30 < other_POS.x))
@@ -497,370 +497,11 @@ void CPlayer::Playercollision(CPlayer **other, int player_num) {
 	}
 }
 void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
-	if (state == 3) {
-		if (mode == 1) {
-			static bool smash = false;
-			static bool attack = false;
-			static bool jump = false;
-
-			DWORD dwDirection = 0;
-			if (GetAsyncKeyState(VK_LEFT))
-			{
-				DIR = 1;
-				dwDirection |= DIR_LEFT;
-
-				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-				{
-
-				}
-				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-				{
-
-				}
-				else
-				{
-
-					if (mapobject_collsion == true)
-						SetStatus(MOVE_LEFT);
-					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-					{
-
-					}
-					else
-						SetStatus(JUMP_LEFT);
-				}
-
-
-			}
-			if (GetAsyncKeyState(VK_RIGHT))
-			{
-				DIR = 2;
-				dwDirection |= DIR_RIGHT;
-				if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-				{
-				}
-
-				else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-					GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-				{
-
-				}
-
-				else
-				{
-					if (mapobject_collsion == true)
-						SetStatus(MOVE_RIGHT);
-					else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-					{
-
-					}
-					else
-						SetStatus(JUMP_RIGHT);
-				}
-			}
-
-
-			//	//점프시 
-
-			if (GetAsyncKeyState('D'))
-			{
-				if (jump == false) {
-
-					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-						return;
-					if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-					{
-						return;
-
-					}
-
-
-					else
-					{
-
-						if (m_bJump == false)
-						{
-							if (JumpCount != 2) {
-								charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
-								m_bJump = true;
-
-
-								JumpTimer();
-								if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
-									SetStatus(JUMP_RIGHT);
-								else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
-									SetStatus(JUMP_LEFT);
-								++JumpCount;
-							}
-
-
-
-						}
-					}
-				}
-				jump = true;
-			}
-			else
-				jump = false;
-			if (GetAsyncKeyState('S'))
-			{
-				if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
-					if (getSmashpoint() > 0)
-					{
-						if (GetStatus() % 2 == 0)
-						{
-							SetStatus(HATTACK_RIGHT);
-						}
-						if (GetStatus() % 2 == 1)
-						{
-							SetStatus(HATTACK_LEFT);
-						}
-						smashsub();
-
-					}
-				}
-				smash = true;
-			}
-			else smash = false;
-			if (GetAsyncKeyState('A'))
-			{
-				if (attack == false) {
-					if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
-					{
-						SetStatus(ATTACK1_RIGHT);
-					}
-					else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
-					{
-						SetStatus(ATTACK1_LEFT);
-					}
-
-					else if (m_State == ATTACK1_RIGHT)
-					{
-						n_AttackCount = 2;
-					}
-					else if (m_State == ATTACK1_LEFT)
-					{
-						n_AttackCount = 2;
-					}
-
-					//점프중 공격시 발차기 
-					else if (GetStatus() == JUMP_LEFT)
-					{
-						SetStatus(KICK_LEFT);
-					}
-					else if (GetStatus() == JUMP_RIGHT)
-					{
-						SetStatus(KICK_RIGHT);
-					}
-				}
-				attack = true;
-			}
-			else attack = false;
-			//막기
-			if (GetAsyncKeyState('W'))
-			{
-				if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
-				{
-					SetStatus(DEFENSE_RIGHT);
-				}
-				else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT || GetStatus() == DEFENSE_LEFT)
-				{
-					SetStatus(DEFENSE_LEFT);
-				}
-
-			}
-			if (dwDirection)
-			{
-				Move(dwDirection, 2.0f);
-				cam.realsetPos(GetPosition().x);
-			}
-			FrameEnd = false;
-		}
-
-		else if (mode == 2) {
-			if (player == 1) {
-				static bool smash = false;
-				static bool attack = false;
-				static bool jump = false;
-
-				DWORD dwDirection = 0;
-				if (GetAsyncKeyState('A'))
-				{
-					DIR = 1;
-					dwDirection |= DIR_LEFT;
-
-					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-					{
-
-					}
-					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-					{
-
-					}
-					else
-					{
-
-						if (mapobject_collsion == true)
-							SetStatus(MOVE_LEFT);
-						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-						{
-
-						}
-						else
-							SetStatus(JUMP_LEFT);
-					}
-
-
-				}
-				if (GetAsyncKeyState('D'))
-				{
-					DIR = 2;
-					dwDirection |= DIR_RIGHT;
-					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-					{
-					}
-
-					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-					{
-
-					}
-
-					else
-					{
-						if (mapobject_collsion == true)
-							SetStatus(MOVE_RIGHT);
-						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-						{
-
-						}
-						else
-							SetStatus(JUMP_RIGHT);
-					}
-				}
-
-
-				//	//점프시 
-
-				if (GetAsyncKeyState('H'))
-				{
-					if (jump == false) {
-
-						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-							return;
-						if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-						{
-							return;
-
-						}
-
-
-						else
-						{
-
-							if (m_bJump == false)
-							{
-								if (JumpCount != 2) {
-									charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
-									m_bJump = true;
-
-
-									JumpTimer();
-									if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
-										SetStatus(JUMP_RIGHT);
-									else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
-										SetStatus(JUMP_LEFT);
-									++JumpCount;
-								}
-
-
-
-							}
-						}
-					}
-					jump = true;
-				}
-				else
-					jump = false;
-				if (GetAsyncKeyState('G'))
-				{
-					if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
-						if (getSmashpoint() > 0)
-						{
-							if (GetStatus() % 2 == 0)
-							{
-								SetStatus(HATTACK_RIGHT);
-							}
-							if (GetStatus() % 2 == 1)
-							{
-								SetStatus(HATTACK_LEFT);
-							}
-							smashsub();
-
-						}
-					}
-					smash = true;
-				}
-				else smash = false;
-				if (GetAsyncKeyState('F'))
-				{
-					if (attack == false) {
-						if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
-						{
-							SetStatus(ATTACK1_RIGHT);
-						}
-						else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
-						{
-							SetStatus(ATTACK1_LEFT);
-						}
-
-						else if (m_State == ATTACK1_RIGHT)
-						{
-							n_AttackCount = 2;
-						}
-						else if (m_State == ATTACK1_LEFT)
-						{
-							n_AttackCount = 2;
-						}
-
-						//점프중 공격시 발차기 
-						else if (GetStatus() == JUMP_LEFT)
-						{
-							SetStatus(KICK_LEFT);
-						}
-						else if (GetStatus() == JUMP_RIGHT)
-						{
-							SetStatus(KICK_RIGHT);
-						}
-					}
-					attack = true;
-				}
-				else attack = false;
-				//막기
-				if (GetAsyncKeyState('T'))
-				{
-					if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
-					{
-						SetStatus(DEFENSE_RIGHT);
-					}
-					else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT || GetStatus() == DEFENSE_LEFT)
-					{
-						SetStatus(DEFENSE_LEFT);
-					}
-
-				}
-				if (dwDirection)
-				{
-					Move(dwDirection, 2.0f);
-					cam.realsetPos(GetPosition().x);
-				}
-				FrameEnd = false;
-			}
-			else if (player == 2) {
+	if (state == 3)
+	{
+		if (m_State!=FLY_LEFT&& m_State != FLY_RIGHT&& m_State !=DYE_LEFT || m_State != DYE_RIGHT || m_State != UP_LEFT || m_State != UP_RIGHT)
+		{
+			if (mode == 1) {
 				static bool smash = false;
 				static bool attack = false;
 				static bool jump = false;
@@ -925,7 +566,7 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 
 				//	//점프시 
 
-				if (GetAsyncKeyState(VK_NUMPAD6))
+				if (GetAsyncKeyState('D'))
 				{
 					if (jump == false) {
 
@@ -966,7 +607,7 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 				}
 				else
 					jump = false;
-				if (GetAsyncKeyState(VK_NUMPAD5))
+				if (GetAsyncKeyState('S'))
 				{
 					if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
 						if (getSmashpoint() > 0)
@@ -986,7 +627,7 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 					smash = true;
 				}
 				else smash = false;
-				if (GetAsyncKeyState(VK_NUMPAD4))
+				if (GetAsyncKeyState('A'))
 				{
 					if (attack == false) {
 						if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
@@ -1021,7 +662,7 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 				}
 				else attack = false;
 				//막기
-				if (GetAsyncKeyState(VK_NUMPAD8))
+				if (GetAsyncKeyState('W'))
 				{
 					if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
 					{
@@ -1039,6 +680,369 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 					cam.realsetPos(GetPosition().x);
 				}
 				FrameEnd = false;
+			}
+
+			else if (mode == 2) {
+				if (player == 1) {
+					static bool smash = false;
+					static bool attack = false;
+					static bool jump = false;
+
+					DWORD dwDirection = 0;
+					if (GetAsyncKeyState('A'))
+					{
+						DIR = 1;
+						dwDirection |= DIR_LEFT;
+
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+						{
+
+						}
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
+
+						}
+						else
+						{
+
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_LEFT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+							{
+
+							}
+							else
+								SetStatus(JUMP_LEFT);
+						}
+
+
+					}
+					if (GetAsyncKeyState('D'))
+					{
+						DIR = 2;
+						dwDirection |= DIR_RIGHT;
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+						{
+						}
+
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
+
+						}
+
+						else
+						{
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_RIGHT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+							{
+
+							}
+							else
+								SetStatus(JUMP_RIGHT);
+						}
+					}
+
+
+					//	//점프시 
+
+					if (GetAsyncKeyState('H'))
+					{
+						if (jump == false) {
+
+							if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+								return;
+							if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+								GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+							{
+								return;
+
+							}
+
+
+							else
+							{
+
+								if (m_bJump == false)
+								{
+									if (JumpCount != 2) {
+										charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+										m_bJump = true;
+
+
+										JumpTimer();
+										if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
+											SetStatus(JUMP_RIGHT);
+										else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
+											SetStatus(JUMP_LEFT);
+										++JumpCount;
+									}
+
+
+
+								}
+							}
+						}
+						jump = true;
+					}
+					else
+						jump = false;
+					if (GetAsyncKeyState('G'))
+					{
+						if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
+							if (getSmashpoint() > 0)
+							{
+								if (GetStatus() % 2 == 0)
+								{
+									SetStatus(HATTACK_RIGHT);
+								}
+								if (GetStatus() % 2 == 1)
+								{
+									SetStatus(HATTACK_LEFT);
+								}
+								smashsub();
+
+							}
+						}
+						smash = true;
+					}
+					else smash = false;
+					if (GetAsyncKeyState('F'))
+					{
+						if (attack == false) {
+							if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
+							{
+								SetStatus(ATTACK1_RIGHT);
+							}
+							else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
+							{
+								SetStatus(ATTACK1_LEFT);
+							}
+
+							else if (m_State == ATTACK1_RIGHT)
+							{
+								n_AttackCount = 2;
+							}
+							else if (m_State == ATTACK1_LEFT)
+							{
+								n_AttackCount = 2;
+							}
+
+							//점프중 공격시 발차기 
+							else if (GetStatus() == JUMP_LEFT)
+							{
+								SetStatus(KICK_LEFT);
+							}
+							else if (GetStatus() == JUMP_RIGHT)
+							{
+								SetStatus(KICK_RIGHT);
+							}
+						}
+						attack = true;
+					}
+					else attack = false;
+					//막기
+					if (GetAsyncKeyState('T'))
+					{
+						if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
+						{
+							SetStatus(DEFENSE_RIGHT);
+						}
+						else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT || GetStatus() == DEFENSE_LEFT)
+						{
+							SetStatus(DEFENSE_LEFT);
+						}
+
+					}
+					if (dwDirection)
+					{
+						Move(dwDirection, 2.0f);
+						cam.realsetPos(GetPosition().x);
+					}
+					FrameEnd = false;
+				}
+				else if (player == 2) {
+					static bool smash = false;
+					static bool attack = false;
+					static bool jump = false;
+
+					DWORD dwDirection = 0;
+					if (GetAsyncKeyState(VK_LEFT))
+					{
+						DIR = 1;
+						dwDirection |= DIR_LEFT;
+
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+						{
+
+						}
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
+
+						}
+						else
+						{
+
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_LEFT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+							{
+
+							}
+							else
+								SetStatus(JUMP_LEFT);
+						}
+
+
+					}
+					if (GetAsyncKeyState(VK_RIGHT))
+					{
+						DIR = 2;
+						dwDirection |= DIR_RIGHT;
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+						{
+						}
+
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
+
+						}
+
+						else
+						{
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_RIGHT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+							{
+
+							}
+							else
+								SetStatus(JUMP_RIGHT);
+						}
+					}
+
+
+					//	//점프시 
+
+					if (GetAsyncKeyState(VK_NUMPAD6))
+					{
+						if (jump == false) {
+
+							if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+								return;
+							if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+								GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+							{
+								return;
+
+							}
+
+
+							else
+							{
+
+								if (m_bJump == false)
+								{
+									if (JumpCount != 2) {
+										charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+										m_bJump = true;
+
+
+										JumpTimer();
+										if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
+											SetStatus(JUMP_RIGHT);
+										else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
+											SetStatus(JUMP_LEFT);
+										++JumpCount;
+									}
+
+
+
+								}
+							}
+						}
+						jump = true;
+					}
+					else
+						jump = false;
+					if (GetAsyncKeyState(VK_NUMPAD5))
+					{
+						if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
+							if (getSmashpoint() > 0)
+							{
+								if (GetStatus() % 2 == 0)
+								{
+									SetStatus(HATTACK_RIGHT);
+								}
+								if (GetStatus() % 2 == 1)
+								{
+									SetStatus(HATTACK_LEFT);
+								}
+								smashsub();
+
+							}
+						}
+						smash = true;
+					}
+					else smash = false;
+					if (GetAsyncKeyState(VK_NUMPAD4))
+					{
+						if (attack == false) {
+							if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
+							{
+								SetStatus(ATTACK1_RIGHT);
+							}
+							else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
+							{
+								SetStatus(ATTACK1_LEFT);
+							}
+
+							else if (m_State == ATTACK1_RIGHT)
+							{
+								n_AttackCount = 2;
+							}
+							else if (m_State == ATTACK1_LEFT)
+							{
+								n_AttackCount = 2;
+							}
+
+							//점프중 공격시 발차기 
+							else if (GetStatus() == JUMP_LEFT)
+							{
+								SetStatus(KICK_LEFT);
+							}
+							else if (GetStatus() == JUMP_RIGHT)
+							{
+								SetStatus(KICK_RIGHT);
+							}
+						}
+						attack = true;
+					}
+					else attack = false;
+					//막기
+					if (GetAsyncKeyState(VK_NUMPAD8))
+					{
+						if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT || GetStatus() == DEFENSE_RIGHT)
+						{
+							SetStatus(DEFENSE_RIGHT);
+						}
+						else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT || GetStatus() == DEFENSE_LEFT)
+						{
+							SetStatus(DEFENSE_LEFT);
+						}
+
+					}
+					if (dwDirection)
+					{
+						Move(dwDirection, 2.0f);
+						cam.realsetPos(GetPosition().x);
+					}
+					FrameEnd = false;
+				}
 			}
 		}
 	}
