@@ -289,8 +289,9 @@ void CPlayer::defance(CPlayer **other, int player_num)
 				case HATTACK_RIGHT:
 					if (m_Position.x - 100 < other_POS.x&&m_Position.x > other_POS.x) {
 						gage += 4;
-						attack_SpriteCount = other[attacker_num]->Get_SPcount();
 						attacker_num = i;
+						attack_SpriteCount = other[attacker_num]->Get_SPcount();
+						
 						impact_de = true;
 						if (GetStatus() == 15) {
 							m_ppTexture[GetStatus()].nSpriteCurrent = 1;
