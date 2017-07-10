@@ -133,10 +133,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 			if (mode == 2) {
 				m_Player[0]->KeyState(cam, state, mode, 1);
 				m_Player[1]->KeyState(cam, state, mode, 2);
-				
+				m_Player[2]->KeyState(cam, state, 1);
 			}
 			else {
 				m_Player[0]->KeyState(cam, state, mode);
+				m_Player[1]->KeyState(cam, state, 1);
+				m_Player[2]->KeyState(cam, state, 1);
 			}
 		}
 	}
@@ -510,7 +512,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			case 'S':
 				if (sel.y < 550)mode = 1;
 				else mode = 2;
-				cout << mode << endl;
+				
 				state = cho_map;
 				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
 				sel.x = 140;
@@ -632,7 +634,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				{
 				
 					map_stage2 = ((sel2.x - 140) / 200) + 1;
-					cout << map_stage2 << endl;
+				
 					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
 
 					KillTimer(hWnd, 1);
@@ -687,7 +689,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel.x = 100 + 125 + 50;
 					sel.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-					SetTimer(hWnd, 6, 100, NULL);
+					SetTimer(hWnd, 6, 200, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -731,7 +733,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel.x = 100 + 125 + 50;
 					sel.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-					SetTimer(hWnd, 6, 100, NULL);
+					SetTimer(hWnd, 6, 200, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -767,7 +769,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					sel2.x = 100 + 125 + 50;
 					sel2.y = 175 + 120 + 50;
 					SetTimer(hWnd, 5, 1000, NULL);
-					SetTimer(hWnd, 6, 100, NULL);
+					SetTimer(hWnd, 6, 200, NULL);
 					pChannel[0]->stop();
 					m.mapSystem->playSound(FMOD_CHANNEL_REUSE, m.mapSound, false, &pChannel[0]);
 					//--------PLAYER SET--------//
@@ -984,11 +986,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		case 6: {
 			if (m_Player != nullptr) {
 				if (mode == 2) {
-					m_Player[2]->KeyState(cam, state);
+					m_Player[2]->KeyState(cam, state,2);
 				}
-				else {
-					m_Player[1]->KeyState(cam, state);
-					m_Player[2]->KeyState(cam, state);
+				else 
+				{
+					m_Player[1]->KeyState(cam, state,2);
+					m_Player[2]->KeyState(cam, state,2);
 				}
 			}
 		}

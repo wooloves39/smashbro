@@ -194,160 +194,155 @@ public:
 
 				DWORD dwDirection = 0;
 				if (targeting == false)return;
-				if (target->GetPosition().x + 10 < GetPosition().x)
-				{
-					DIR = 1;
-					dwDirection |= DIR_LEFT;
-
-					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+				if (target->GetPosition().x + 50 >= m_Position.x || target->GetPosition().x - 50 <= m_Position.x) { cout << "근처 도착" << endl; }
+				if (mode == 1) {
+					
+					if (target->GetPosition().x + 50 < GetPosition().x)
 					{
-
-					}
-					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-					{
-
-					}
-					else
-					{
-
-						if (mapobject_collsion == true)
-							SetStatus(MOVE_LEFT);
-						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-						{
-
-						}
-						else
-							SetStatus(JUMP_LEFT);
-					}
-
-				}
-				if (target->GetPosition().x - 10 > GetPosition().x) {
-					DIR = 2;
-					dwDirection |= DIR_RIGHT;
-					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-					{
-					}
-
-					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
-					{
-
-					}
-
-					else
-					{
-						if (mapobject_collsion == true)
-							SetStatus(MOVE_RIGHT);
-						else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
-						{
-
-						}
-						else
-							SetStatus(JUMP_RIGHT);
-					}
-				}
-				if (target->GetPosition().y + 30 < GetPosition().y&&jump == false) {
-					if (jump == false) {
+						DIR = 1;
+						dwDirection |= DIR_LEFT;
 
 						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
-							return;
-						if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
-							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
 						{
-							return;
 
 						}
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
 
-
+						}
 						else
 						{
 
-							if (m_bJump == false)
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_LEFT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
 							{
-								if (JumpCount != 2) {
-									charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
-									m_bJump = true;
-
-
-									JumpTimer();
-									if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
-										SetStatus(JUMP_RIGHT);
-									else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
-										SetStatus(JUMP_LEFT);
-									++JumpCount;
-								}
-
-
 
 							}
+							else
+								SetStatus(JUMP_LEFT);
 						}
+
 					}
-					jump = true;
-				}
-				else
-					jump = false;
-				if (GetPosition().x + 100 > target->GetPosition().x&&GetPosition().x - 100 < target->GetPosition().x) {
-					if (GetPosition().y + 20 > target->GetPosition().y&&GetPosition().y - 20 < target->GetPosition().y) {
-						if (getSmashpoint() > 0) {
-							if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
-								if (getSmashpoint() > 0)
-								{
-									if (GetStatus() % 2 == 0)
-									{
-										SetStatus(HATTACK_RIGHT);
-									}
-									if (GetStatus() % 2 == 1)
-									{
-										SetStatus(HATTACK_LEFT);
-									}
-									smashsub();
-								}
-								smash = true;
-							}
-							else smash = false;
+					if (target->GetPosition().x - 50 > GetPosition().x) {
+						DIR = 2;
+						dwDirection |= DIR_RIGHT;
+						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+						{
 						}
-						else {
-							if (attack == false) {
-								if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
-								{
-									SetStatus(ATTACK1_RIGHT);
-								}
-								else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
-								{
-									SetStatus(ATTACK1_LEFT);
-								}
 
-								else if (m_State == ATTACK1_RIGHT)
-								{
-									n_AttackCount = 2;
-								}
-								else if (m_State == ATTACK1_LEFT)
-								{
-									n_AttackCount = 2;
-								}
+						else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+							GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+						{
 
-								//점프중 공격시 발차기 
-								else if (GetStatus() == JUMP_LEFT)
-								{
-									SetStatus(KICK_LEFT);
-								}
-								else if (GetStatus() == JUMP_RIGHT)
-								{
-									SetStatus(KICK_RIGHT);
-								}
-								attack = true;
+						}
+
+						else
+						{
+							if (mapobject_collsion == true)
+								SetStatus(MOVE_RIGHT);
+							else if (GetStatus() == KICK_LEFT || GetStatus() == KICK_RIGHT)
+							{
+
 							}
-							else attack = false;
+							else
+								SetStatus(JUMP_RIGHT);
 						}
 					}
 				}
+				else if (mode == 2) {
+					if (target->GetPosition().y + 30 < GetPosition().y&&jump == false) {
+						if (jump == false) {
+
+							if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
+								return;
+							if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
+								GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT)
+							{return;}
+							else
+							{
+								if (m_bJump == false)
+								{
+									if (JumpCount != 2) {
+										charSystem->playSound(FMOD_CHANNEL_REUSE, charSound[1], false, &pChannel);
+										m_bJump = true;
+										JumpTimer();
+										if (GetStatus() == BASIC_RIGHT || GetStatus() == JUMP_RIGHT)
+											SetStatus(JUMP_RIGHT);
+										else if (GetStatus() == BASIC_LEFT || GetStatus() == JUMP_LEFT)
+											SetStatus(JUMP_LEFT);
+										++JumpCount;
+									}
+								}
+							}
+						}
+						jump = true;
+					}
+					else
+						jump = false;
+					if (GetPosition().x + 100 > target->GetPosition().x&&GetPosition().x - 100 < target->GetPosition().x) {
+						if (GetPosition().y + 20 > target->GetPosition().y&&GetPosition().y - 20 < target->GetPosition().y) {
+							if (getSmashpoint() > 0) {
+								if (smash == false && GetStatus() != HATTACK_LEFT&& GetStatus() != HATTACK_RIGHT) {
+									if (getSmashpoint() > 0)
+									{
+										if (GetStatus() % 2 == 0)
+										{
+											SetStatus(HATTACK_RIGHT);
+										}
+										if (GetStatus() % 2 == 1)
+										{
+											SetStatus(HATTACK_LEFT);
+										}
+										smashsub();
+									}
+									smash = true;
+								}
+								else smash = false;
+							}
+							else {
+								if (attack == false) {
+									if (GetStatus() == BASIC_RIGHT || GetStatus() == MOVE_RIGHT)
+									{
+										SetStatus(ATTACK1_RIGHT);
+									}
+									else if (GetStatus() == BASIC_LEFT || GetStatus() == MOVE_LEFT)
+									{
+										SetStatus(ATTACK1_LEFT);
+									}
+
+									else if (m_State == ATTACK1_RIGHT)
+									{
+										n_AttackCount = 2;
+									}
+									else if (m_State == ATTACK1_LEFT)
+									{
+										n_AttackCount = 2;
+									}
+									//점프중 공격시 발차기 
+									else if (GetStatus() == JUMP_LEFT)
+									{
+										SetStatus(KICK_LEFT);
+									}
+									else if (GetStatus() == JUMP_RIGHT)
+									{
+										SetStatus(KICK_RIGHT);
+									}
+									attack = true;
+								}
+								else attack = false;
+							}
+						}
+					}
+				}
+
 
 
 
 				if (dwDirection)
 				{
-					Move(dwDirection, 20.0f);
+					Move(dwDirection, 2.0f);
 				}
 				FrameEnd = false;
 
@@ -359,15 +354,19 @@ public:
 	virtual void distance(CPlayer **other, int player_num) {
 		int num = 0;
 		int player[2];
+		int score[2] = { 0, 0};
+	
 		for (int i = 0; i < player_num; ++i) {
 			if (other[i] == this);
 			else {
 				Distance[num] = sqrt((pow(m_Position.x - other[i]->GetPosition().x, 2) + pow(m_Position.y - other[i]->GetPosition().y, 2)));
+				score[num] += other[i]->getDamege_num()-Distance[num];
 				player[num] = i;
 				++num;
 			}
 		}
-
+		cout << score[0] <<"score1"<< endl;
+		cout << score[1] <<"score2"<< endl;
 		if (Distance[0] < Distance[1] || other[player[1]]->live == false)
 			target = other[player[0]];
 		else
