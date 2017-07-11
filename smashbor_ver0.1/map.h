@@ -205,7 +205,7 @@ public:
 						player.SetStatus(player.GetStatus() % 2 + BASIC_RIGHT);
 					}
 					player.mapobject_collsion = true;//맵에 안붙어있을때
-
+					player.m_bJump = false;
 					return;
 				}
 			}

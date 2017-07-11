@@ -444,7 +444,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	static HFONT TimeFont = CreateFont(70, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));
 	static HFONT UIFont = CreateFont(15, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));//문자체
-
+	static HPEN hPen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
 	static HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0)),hBrush2=CreateSolidBrush(RGB(0,255,0));
 	static RECT rectView;
 	static int stage_view = 0;
@@ -926,6 +926,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (state == play) //점프 고치면 수정해야함
 		{
+			cam.realsetPos(m_Player[0]->GetPosition().x);
 			cam.add();
 			static int count = 0;
 			if (count >= 2 || m_Player[0]->live == false) {
