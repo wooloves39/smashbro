@@ -696,8 +696,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
 					BuildPlayer(nowPlayer,mode);
-
+					if(mode==1)
 					cam.setPos(m_Player[0]->GetPosition().x);
+					else if(mode==2)
+						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
 					
@@ -741,7 +743,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
 					BuildPlayer(nowPlayer,mode);
 
-					cam.setPos(m_Player[0]->GetPosition().x);
+					if (mode == 1)
+						cam.setPos(m_Player[0]->GetPosition().x);
+					else if (mode == 2)
+						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
 					
@@ -777,7 +782,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
 					BuildPlayer(nowPlayer,mode);
 
-					cam.setPos(m_Player[0]->GetPosition().x);
+					if (mode == 1)
+						cam.setPos(m_Player[0]->GetPosition().x);
+					else if (mode == 2)
+						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
 					
@@ -926,7 +934,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (state == play) //점프 고치면 수정해야함
 		{
-			cam.realsetPos(m_Player[0]->GetPosition().x);
+			if (mode == 1)
+				cam.realsetPos(m_Player[0]->GetPosition().x);
+			else if (mode == 2)
+				cam.realsetPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
+			//cam.realsetPos(m_Player[0]->GetPosition().x);
 			cam.add();
 			static int count = 0;
 			if (count >= 2 || m_Player[0]->live == false) {
@@ -1182,15 +1194,15 @@ void Timer(void)//플레이어 클래스 안에 종속 시키기
 					m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent = 0;
 
 					//---------2번 누르면 Attack2가 나오도록 하기--------//
-					if (m_Player[nowPlayer]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_RIGHT)
+					if (m_Player[i]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_RIGHT)
 					{
 						m_Player[i]->SetStatus(ATTACK2_RIGHT);
-						m_Player[nowPlayer]->n_AttackCount = 1;
+						m_Player[i]->n_AttackCount = 1;
 					}
-					else if (m_Player[nowPlayer]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_LEFT)
+					else if (m_Player[i]->n_AttackCount > 1 && m_Player[i]->m_State == ATTACK1_LEFT)
 					{
 						m_Player[i]->SetStatus(ATTACK2_LEFT);
-						m_Player[nowPlayer]->n_AttackCount = 1;
+						m_Player[i]->n_AttackCount = 1;
 					}
 					//-------------다운 상태에서 일어난 후 복귀하기---------------//
 					else if (m_Player[i]->GetStatus() == DYE_RIGHT) {
