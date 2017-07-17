@@ -37,11 +37,8 @@ public:
 	int		DIR;
 	int		n_AttackCount;
 
-
-
 	bool	FrameEnd;
 	bool	m_bJump = false;
-
 
 	System*	charSystem;
 	Channel* pChannel;
@@ -73,7 +70,6 @@ public:
 	void JumpTimer(void);
 	void SetBasic(int State);
 	void Render(HDC hDC);
-	void Render(HDC hDC, int x, int y, int xsize, int ysize);//ranking state에서 그려지는 것들에 대한 함수
 //-------------- 현우추가 여기서부터 ----------//
 	void SetImage(Image* Image) {
 		m_ppTexture = Image;
@@ -134,7 +130,6 @@ public:
 	int getgage() { return gage; }
 	virtual void Playercollision(CPlayer **other, int player_num);
 	void release() {
-
 		delete[] m_ppTexture;
 		rank_state.Destroy();
 		UI.Destroy();

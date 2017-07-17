@@ -147,7 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
 //-----------------------------------------------------------//
 
-void BuildPlayer(int nMyPlayer,int mode)
+void BuildPlayer(int nMyPlayer, int mode)
 {
 
 	CPlayer *Mario = new CPlayer(26);
@@ -407,7 +407,7 @@ void BuildPlayer(int nMyPlayer,int mode)
 		m_Player[2]->SetImage(Luizy->GetImage());
 		m_Player[2]->rank_state = Luizy->rank_state;
 		m_Player[2]->UI = Luizy->UI;
-	
+
 	}
 	if (nMyPlayer == 1) {
 		m_Player[1]->SetImage(Mario->GetImage());
@@ -419,7 +419,7 @@ void BuildPlayer(int nMyPlayer,int mode)
 		m_Player[0]->SetImage(Luizy->GetImage());
 		m_Player[0]->rank_state = Luizy->rank_state;
 		m_Player[0]->UI = Luizy->UI;
-		
+
 	}
 
 	if (nMyPlayer == 2) {
@@ -445,7 +445,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	static HFONT TimeFont = CreateFont(70, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));
 	static HFONT UIFont = CreateFont(15, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, 0, 0, 0, 0, TEXT("HY헤드라인M"));//문자체
 	static HPEN hPen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
-	static HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0)),hBrush2=CreateSolidBrush(RGB(0,255,0));
+	static HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0)), hBrush2 = CreateSolidBrush(RGB(0, 255, 0));
 	static RECT rectView;
 	static int stage_view = 0;
 	DWORD dwDirection = 0;
@@ -512,7 +512,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			case 'S':
 				if (sel.y < 550)mode = 1;
 				else mode = 2;
-				
+
 				state = cho_map;
 				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
 				sel.x = 140;
@@ -603,60 +603,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 						KillTimer(hWnd, 1);
 					break;
 				case 'F':
-				
-					map_stage = ((sel.x - 140) / 200) + 1;
-					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
-					break;
-				case VK_LEFT:
-					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-					sel2.x -= 200;
-					if (sel2.x < 0)
-						sel2.x = 140 + 200 * 5;
-					
-					if (map_stage == 6)
-						SetTimer(hWnd, 1, 150, NULL);
-					else
-						KillTimer(hWnd, 1);
-					break;
-
-				case VK_RIGHT:
-					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
-					sel2.x += 200;
-					if (sel2.x > 140 + 200 * 5)
-						sel2.x = 140;
-					
-					if (map_stage == 6)
-						SetTimer(hWnd, 1, 150, NULL);
-					else
-						KillTimer(hWnd, 1);
-					break;
-				case VK_NUMPAD4:
-				{
-				
-					map_stage2 = ((sel2.x - 140) / 200) + 1;
-				
-					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
-
-					KillTimer(hWnd, 1);
-
-					break;
-				}
-				default:
-					break;
-				}
-				if (map_stage == map_stage2&&wParam=='F') {
 					state = cho_cha;
+					map_stage = ((sel.x - 140) / 200) + 1;
 					if (map_stage == 6)
 						map_stage = rand() % 5 + 1;
 					m.load(map_stage, rectView);
 					sel.x = 50 + 125;
 					sel.y = 175 + 120 + 25;
+					nowPlayer = MARIO;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, choiceSound, false, &pChannel[1]);
 					sel2.y = 175 + 120 + 25;
 					sel2.x = 300 * 3 + 50 + 125;
-					nowPlayer = MARIO;
-					
-
 					KillTimer(hWnd, 1);
+					break;
 				}
 			}
 			break;
@@ -695,14 +654,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer,mode);
-					if(mode==1)
-					cam.setPos(m_Player[0]->GetPosition().x);
-					else if(mode==2)
+					BuildPlayer(nowPlayer, mode);
+					if (mode == 1)
+						cam.setPos(m_Player[0]->GetPosition().x);
+					else if (mode == 2)
 						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					
+
 				}
 				break;
 
@@ -741,7 +700,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer,mode);
+					BuildPlayer(nowPlayer, mode);
 
 					if (mode == 1)
 						cam.setPos(m_Player[0]->GetPosition().x);
@@ -749,14 +708,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					
+
 				case VK_LEFT:
 					pSystem->playSound(FMOD_CHANNEL_REUSE, changeSound, false, &pChannel[1]);
 					sel2.x -= 250 + 50;
-				//	--nowPlayer;
+					//	--nowPlayer;
 					if (sel2.x < 0) {
 						sel2.x = 300 * 3 + 50 + 125;
-					//	nowPlayer = 3;
+						//	nowPlayer = 3;
 					}
 					break;
 				case VK_RIGHT:
@@ -765,7 +724,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//++nowPlayer;
 					if (sel2.x > 1200) {
 						sel2.x = 175;
-					//	nowPlayer = 0;
+						//	nowPlayer = 0;
 					}
 					break;
 				case VK_NUMPAD4:
@@ -780,7 +739,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					//--------PLAYER SET--------//
 
 					nPlayer = 3; // 현재 플레이하는 플레이어는 1명. 
-					BuildPlayer(nowPlayer,mode);
+					BuildPlayer(nowPlayer, mode);
 
 					if (mode == 1)
 						cam.setPos(m_Player[0]->GetPosition().x);
@@ -788,7 +747,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 						cam.setPos(m_Player[0]->GetPosition().x, m_Player[1]->GetPosition().x);
 					wsprintf(Playtime_t, TEXT("%d"), PlayTime);
 					SetTimer(hWnd, 0, 100, NULL);
-					
+
 					break;
 
 				}
@@ -798,29 +757,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			*pKeyBuffer = NULL;
 			dwDirection = 0;
 			GameReady = true;
-		if (GetKeyboardState(pKeyBuffer))
-		{
-			SetTimer(hWnd, 2, 16, NULL);//점프타이머
+			if (GetKeyboardState(pKeyBuffer))
+			{
+				SetTimer(hWnd, 2, 16, NULL);//점프타이머
 
-										//------PLAYER CHANGE------//
+											//------PLAYER CHANGE------//
 
-		}
+			}
 			break;
 		case ranking:
-			switch (wParam) {
-			case 'A':
-				state = cho_map;
-				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
-				reset();
-				KillTimer(hWnd, 0);
+			if (mode == 1) {
+				switch (wParam) {
+				case 'A':
+					state = cho_map;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
+					reset();
+					KillTimer(hWnd, 0);
 
-				break;
-			case 'S': {
-				state = ending;
-				pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ending - 2], false, &pChannel[0]);
-				break;
+					break;
+				case 'S': {
+					state = ending;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ending - 2], false, &pChannel[0]);
+					break;
+				}
+				}
 			}
+			else {
+				switch (wParam) {
+				case 'F':
+				case VK_NUMPAD4:
+					state = cho_map;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[state], false, &pChannel[0]);
+					reset();
+					KillTimer(hWnd, 0);
+					break;
+				case 'G':
+				case VK_NUMPAD5:
+				{
+					state = ending;
+					pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ending - 2], false, &pChannel[0]);
+					break;
+				}
+				}
 			}
+
 			break;
 		case ending:
 			exit(1);
@@ -863,7 +843,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			}
 			else {
 				switch (wParam)
-				{case 'A':
+				{
+				case 'A':
 				case 'D':
 				case 'F':
 				case 'G':
@@ -921,7 +902,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					break;
 				}
 			}
-						
+
 		}
 	}
 	InvalidateRect(hWnd, NULL, FALSE);
@@ -941,7 +922,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			//cam.realsetPos(m_Player[0]->GetPosition().x);
 			cam.add();
 			static int count = 0;
-			if (count >= 2 || m_Player[0]->live == false) {
+			if (count >= 2) {
 				setranking();
 				count = 0;
 				KillTimer(hWnd, 5);
@@ -954,7 +935,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 					m_Player[i]->distance(m_Player, 3);
 				}
 				m.collision(*m_Player[i]);
-			m_Player[i]->Playercollision(m_Player, nPlayer);
+				m_Player[i]->Playercollision(m_Player, nPlayer);
 				m_Player[i]->gravity();
 				m_Player[i]->attack(m_Player, nPlayer);
 				m_Player[i]->defance(m_Player, nPlayer);
@@ -983,7 +964,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 
 		case 0:
 			Timer();
-			
+
 			break;
 		case 5: {
 			--PlayTime;
@@ -992,19 +973,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				setranking();
 
 				KillTimer(hWnd, 5);
-			
+
 			}
 		}
 				break;
 		case 6: {
+			cout << m_Player[0]->m_Velocity.x << endl;
 			if (m_Player != nullptr) {
 				if (mode == 2) {
-					m_Player[2]->KeyState(cam, state,2);
+					m_Player[2]->KeyState(cam, state, 2);
 				}
-				else 
+				else
 				{
-					m_Player[1]->KeyState(cam, state,2);
-					m_Player[2]->KeyState(cam, state,2);
+					m_Player[1]->KeyState(cam, state, 2);
+					m_Player[2]->KeyState(cam, state, 2);
 				}
 			}
 		}
@@ -1035,7 +1017,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 			RECT rc;
 			RECT rc2;
 			RECT selectRC;
-			
+
 			selectRC.left = -80 + sel.x;
 			selectRC.top = -45 + sel.y;
 			selectRC.right = 80 + sel.x;
@@ -1061,15 +1043,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				Rectangle(memDC, (i)*(40 + 160) + rc.left + 80 + 60, 650 + rc.top, (i) * (40 + 160) + rc.right + 80 + 60, 650 + rc.bottom);
 				mapEX[i].Draw(memDC, (i)*(40 + 160) + rc.left + 80 + 60, 650 + rc.top, 160, 90, 0, 0, 800, 450);
 				//40 사각형간의 거리, 160 사각형의 크기,80 첫 사각형을 원점에 맞추는 것, 60,양쪽 보정
-			}
-			
-			if (mode == 2) {
-				RECT selectRC2;
-				selectRC2.left = -80 + sel2.x;
-				selectRC2.top = -45 + sel2.y;
-				selectRC2.right = 80 + sel2.x;
-				selectRC2.bottom = 45 + sel2.y;
-				FrameRect(memDC, &selectRC2, hBrush2);
 			}
 			FrameRect(memDC, &selectRC, hBrush);
 			break; }
@@ -1166,7 +1139,6 @@ void Timer(void)//플레이어 클래스 안에 종속 시키기
 				m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent = 1;
 			else
 				m_Player[i]->m_ppTexture[m_Player[i]->m_State].nSpriteCurrent = 0;
-			//if (m_Player[i]->m_State == DEFENSE_LEFT)m_Player[i]->m_State == DEFENSE_LEFT;
 			m_Player[i]->FrameEnd = 1;
 		}
 
