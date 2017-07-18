@@ -69,7 +69,7 @@ void CPlayer::SetStatus(int state)
 		default:
 			break;
 		}
-		
+
 		StateChangeX();
 		//StateChangeY();
 	}
@@ -285,7 +285,6 @@ void CPlayer::defance(CPlayer **other, int player_num)
 			if (this == other[i])continue;
 			else if ((m_Position.y + 20 > other_POS.y) && (m_Position.y - 20 < other_POS.y))//버튼 한번당 한번만 적용되게 만들고 싶다
 			{
-				StateChangeX();
 				switch (other[i]->GetStatus())
 				{
 				case HATTACK_RIGHT:
@@ -1048,7 +1047,7 @@ void CPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 					}
 					if (dwDirection)
 					{
-						Move(dwDirection, 2.0f);
+						Move(dwDirection, 3.0f);
 
 					}
 
@@ -1093,19 +1092,20 @@ void CAIPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 		if (m_State == FLY_LEFT || m_State == FLY_RIGHT || m_State == DYE_LEFT || m_State == DYE_RIGHT || m_State == UP_LEFT || m_State == UP_RIGHT);
 		else
 		{
+			static bool pos = false;
 			static bool smash = false;
 			static bool attack = false;
 			static bool jump = false;
 			if (mapobject_collsion == true)jump = false;
 			DWORD dwDirection = 0;
 			if (targeting == false)return;
-			if (mode == 1) {
+			if (mode == 1) {//지속성
 
 				if (target->GetPosition().x + 40 < GetPosition().x)
 				{
 					DIR = 1;
-					dwDirection |= DIR_LEFT;
-
+					//dwDirection |= DIR_LEFT;
+					dwDirection = DIR_LEFT;
 					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
 					{
 
@@ -1132,7 +1132,8 @@ void CAIPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 				}
 				if (target->GetPosition().x - 40 > GetPosition().x) {
 					DIR = 2;
-					dwDirection |= DIR_RIGHT;
+					///dwDirection |= DIR_RIGHT
+					dwDirection = DIR_RIGHT;
 					if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT);
 					else if (GetStatus() == ATTACK1_LEFT || GetStatus() == ATTACK2_LEFT ||
 						GetStatus() == ATTACK1_RIGHT || GetStatus() == ATTACK2_RIGHT ||
@@ -1149,10 +1150,24 @@ void CAIPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 							SetStatus(JUMP_RIGHT);
 					}
 				}
+				if (target->GetPosition().y - 50 > m_Position.y) {
+
+					pos = true;
+					if (m_Position.x > 0) {
+						DIR = 1;
+						dwDirection = DIR_LEFT;
+						SetStatus(MOVE_LEFT);
+					}
+					else if (m_Position.x <=0) {
+						DIR = 2;
+						dwDirection = DIR_RIGHT;
+						SetStatus(MOVE_RIGHT);	
+					}
+				}
 			}
-			else if (mode == 2) {
+			else if (mode == 2) {//1회성
 				if (target->GetPosition().y + 20 < GetPosition().y&&jump == false && target->mapobject_collsion == true) {
-					cout << jump << " " << target->mapobject_collsion << endl;
+
 					if (jump == false) {
 
 						if (GetStatus() == DEFENSE_LEFT || GetStatus() == DEFENSE_RIGHT)
@@ -1238,13 +1253,9 @@ void CAIPlayer::KeyState(CCamera& cam, int state, int mode, int player) {
 					}
 				}
 			}
-
-
-
-
 			if (dwDirection)
 			{
-				Move(dwDirection, 2.0f);
+				Move(dwDirection, 3.0f);
 			}
 			FrameEnd = false;
 

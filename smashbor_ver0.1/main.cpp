@@ -53,7 +53,7 @@ void setranking() {
 	pSystem->playSound(FMOD_CHANNEL_REUSE, stateSound[ranking - 2], false, &pChannel[0]);
 	state = ranking;
 	for (int i = 0; i < 3; i++) {
-		if (m_Player[i]->live == true)m_Player[i]->PlayTime_num = 99 - PlayTime;
+		if (m_Player[i]->live == true)m_Player[i]->PlayTime_num = 99;
 		m_Player[i]->total_score_num = m_Player[i]->PlayTime_num*m_Player[i]->damage_num;
 	}
 	for (int i = 0; i < 3; ++i) {
@@ -944,7 +944,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 				else if (m_Player[i]->GetStatus() == DYE_RIGHT || m_Player[i]->GetStatus() == DYE_LEFT)
 					m_Player[i]->smashing(m_Player[m_Player[i]->getAttacker()]->getDamege_num(), 10, false);
 
-				if (m_Player[i]->GetPosition().y > 800 && m_Player[i]->live == true) {
+				if (m_Player[i]->GetPosition().y > 900 && m_Player[i]->live == true) {
 					m_Player[i]->live = false;
 					m_Player[i]->charSystem->playSound(FMOD_CHANNEL_REUSE, m_Player[i]->charSound[3], false, &m_Player[i]->pChannel);
 					m_Player[i]->PlayTime_num = 99 - PlayTime;
@@ -978,7 +978,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 		}
 				break;
 		case 6: {
-			cout << m_Player[0]->m_Velocity.x << endl;
+		
 			if (m_Player != nullptr) {
 				if (mode == 2) {
 					m_Player[2]->KeyState(cam, state, 2);
